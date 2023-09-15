@@ -18,15 +18,21 @@ ____________
 
 To install the package:
 
-1. Clone the repository on your computer::
+1. Clone the repository on your computer
+
+.. code-block:: console
 
    $ git clone https://github.com/Sam54000/eeg_modules.git
 
-2. Move to the newly cloned repository ``eeg_modules`` on your computer::
+2. Move to the newly cloned repository ``eeg_modules`` on your computer
+
+.. code-block:: console
 
    $ cd eeg_modules
 
-3. Install the package using ``pip``::
+3. Install the package using ``pip``
+
+.. code-block:: console
 
    $ python -m pip install -e .
 
