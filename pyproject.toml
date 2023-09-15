@@ -5,7 +5,7 @@ build-backend = "flit_core.buildapi"
 [project]
 name = "eeg_modules_Sam54000"
 authors = [{name = "Samuel Louviot", email = "sam.louviot@gmail.com"}]
-readme = "README.md"
+readme = "README.rst"
 requires-python = ">=3.9"
 classifiers = [
 	"Programming Language :: Python :: 3",

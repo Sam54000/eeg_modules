@@ -30,9 +30,6 @@ Useful functions for EEG analysis.
 #                             STANDARD LIBRARY IMPORTS
 # ==============================================================================
 import pickle
-import sys
-
-from pathlib import Path
 from copy import copy
 
 # ==============================================================================
@@ -47,9 +44,26 @@ from mne.preprocessing import ICA, read_ica
 # ==============================================================================
 #                               CLASS AND FUNCTIONS
 # ==============================================================================
-def apply_custom_baseline(data, method="mean"):
-    d = data._data
-    m = np.mean(data._data, axis=-1, keepdims=True)
+def apply_custom_baseline(data, time_window=None, method="mean"):
+    """apply_custom_baseline.
+    Apply a custom baseline to the data before a time-frequency analysis.
+
+    Args:
+        data (:obj: mne.io.Raw | mne.Epochs): An instance of mne.io.Raw or mne.Epochs.
+        time_window (tuple, optional): The time window in seconds to use for the baseline. Defaults to None.
+        method (str, optional): Method for applying the baseline. Can be:
+            - "mean": The Defaults to "mean".
+
+    Returns:
+        _type_: _description_
+    """
+    
+    d = data.get_data()
+    if time_window is None:
+        bld = data.copy().get_data()
+    else:
+        bld = data.copy().crop(*time_window).get_data()
+    m = np.mean(bld, axis=-1, keepdims=True)
 
     if method == "mean":
         d -= m
@@ -79,6 +93,20 @@ def prompt_message(
     separator_position="both",
     message_alignment="centered",
 ):
+    """prompt_message.
+    Print message on the prompt with nice formating
+
+    Args:
+        message (str): The message to print
+        all_cap (bool, optional): Wether to pring the message in all capital letters. 
+            Defaults to True.
+        line_separator (str, optional): Choose the character that is use to delimitate the messages. 
+            Defaults to "=".
+        separator_position (str, optional): The position of the separator can be either "both", "above", "below". 
+            Defaults to "both".
+        message_alignment (str, optional): How to align the text either "centered", "left", "right". 
+            Defaults to "centered".
+    """
     if all_cap:
         message = message.upper()
 
@@ -177,12 +205,9 @@ class epochs_stats:
             Metadata read from eprime file.
 
     Attributes:
-        average : (`numpy.ndarray`)
-            the average calculated
-        std : (`numpy.ndarray`)
-            the standard deviation calculated
-        slope : (`numpy.ndarray`)
-            the slope calculated
+        average (:obj: numpy.ndarray): The average calculated
+        std (:obj: numpy.ndarray): The standard deviation calculated
+        slope : (:obj: numpy.ndarray): The slope calculated
         maximum : (`numpy.ndarray`)
             the maximum calculated
         minimum : (`numpy.ndarray`)
@@ -206,7 +231,7 @@ class epochs_stats:
         # Create empty arrays (size (nb of epochs, nb of channels, 1)) using
         # list comprehension
 
-        (avg, std, slope, maximum, minimum, median,) = [
+        (mean, std, slope, maximum, minimum, median,) = [
             np.empty(
                 (
                     np.shape(data.get_data())[0],
@@ -255,7 +280,7 @@ class epochs_stats:
             chunk_list.append(chunk_array)
 
             # Calculate the descriptive statistics
-            avg[i, :, :] = chunk_array.mean(axis=2, keepdims=True)
+            mean[i, :, :] = chunk_array.mean(axis=2, keepdims=True)
             std[i, :, :] = chunk_array.std(axis=2, keepdims=True)
             median[i, :, :] = np.median(chunk_array, axis=2, keepdims=True)
             idx_max[i] = np.unravel_index(chunk_array.argmax(), chunk_array.shape)[2]
@@ -280,7 +305,7 @@ class epochs_stats:
 
         self.channels = data.info["ch_names"]
         self.nb_epochs = nb_epochs
-        self.average = avg
+        self.mean = mean
         self.std = std
         self.slope = slope
         self.maximum = maximum
@@ -383,20 +408,17 @@ def apply_ssd(ssd, epochs):
 
 def create_ssd_object(instance, band="theta", saving_filename=None, save=False):
     """create_ssd_object.
-    Create the spectro spatial object extimated within the frequency band
+    Create the spectro spatial object estimated within the frequency band
     of interest.
 
     Args:
-        instance: (`mne.raw` or `mne.epochs` object)
-        band : (`str`)
-            Frequency band of interest.
-        saving_filename : (`str` | `None`, default to `None`)
-            If save = `True`, the filename under which the ssd object will be saved.
-        save : (`bool`, default to `False`)
-            Indiciate if the object will be saved under the name of saving_filename
+        instance (:obj: `mne.raw` or :obj:`mne.epochs`): The instance from which the ssd object will be estimated.
+        band (str): Frequency band of interest.
+        saving_filename (str | None): If save = `True`, the filename under which the ssd object will be saved. Defaults to `None`.
+        save (bool): Indiciate if the object will be saved under the name of saving_filename. Defaults to `False`.
 
     Returns:
-        The ssd `object`.
+        ssd (:obj:`mne.decoding.SSD`): The ssd object estimated from the instance.
     """
     info = instance.info
     data = instance.get_data()
