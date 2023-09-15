@@ -20,15 +20,15 @@ To install the package:
 
 1. Clone the repository on your computer::
 
-$ git clone https://github.com/Sam54000/eeg_modules.git
+   $ git clone https://github.com/Sam54000/eeg_modules.git
 
 2. Go to the created ``eeg_modules`` directory on your computer
 
-$ cd eeg_modules
+   $ cd eeg_modules
 
-3. Install the package using pip
+3. Install the package using ``pip``::
 
-$ python -m pip install -e .
+   $ python -m pip install -e .
 
 .. note::
 
