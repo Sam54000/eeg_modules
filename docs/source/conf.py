@@ -2,9 +2,9 @@
 
 # -- Project information
 
-project = 'Lumache'
-copyright = '2021, Graziella'
-author = 'Graziella'
+project = 'Sam54000-eeg_modules'
+copyright = '2023, Samuel Louviot'
+author = 'Samuel Louviot'
 
 release = '0.1'
 version = '0.1.0'
@@ -15,6 +15,7 @@ extensions = [
     'sphinx.ext.duration',
     'sphinx.ext.doctest',
     'sphinx.ext.autodoc',
+    'sphinx.ext.napoleon',
     'sphinx.ext.autosummary',
     'sphinx.ext.intersphinx',
 ]
