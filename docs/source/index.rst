@@ -59,4 +59,6 @@ Contents
 .. toctree::
 
    usage
-   api
+   BIDS conversion
+   preprocess_eeg
+   useful_functions

@@ -58,21 +58,22 @@ An EEG folder in a BIDS format should include the following files:
 # ==============================================================================
 import json
 import os
-import argparse
 import sys
 import xml.etree.ElementTree as ET
-
 from pathlib import Path
+from datetime import datetime
 
 # ==============================================================================
 #                       IMPORTS CUSTOM MODULES AND PACKAGES
 # ==============================================================================
 import pandas as pd #pip install pandas or conda install pandas
 import mne #pip install mne or conda install mne
+from simple_term_menu import TerminalMenu
+from mne.channels import get_builtin_montages, get_builtin_ch_adjacencies
+
 import mne_bids #pip install mne-bids or conda install mne-bids
 
-sys.path.append('/Users/samuel/codes/modules') #Think about making a setup.py file
-from preprocess_ant import *
+from preprocess_eeg import *
 
 # ==============================================================================
 #                               CLASS AND FUNCTIONS
@@ -106,6 +107,7 @@ class Convertor:
         elif self.BIDSentities_from_eeg['task'].lower() == 'rest':
             self.raw,_ = preprocess_eeg_resting(self.raw, montage_name="GSN-HydroCel-129")
 
+# ---------------- GENERATE ELECTRODES.TSV AND ELECTRODES.JSON ----------------
     def electrodes_description(self,
                                elec_type = 'sponge',
                                ref_name = 'Cz'):
@@ -176,7 +178,7 @@ class Convertor:
             spaces = ' ' * (39 - len(print_string))
             print(f'{print_string}{spaces}{self.BIDSpath.fpath}')
             return self
-    
+# -------------------------- GENERATE CHANNELS.TSV ----------------------------
     def channel_description(self):
         """generate the channel description tsv file
         
@@ -285,7 +287,7 @@ class Convertor:
         print(f'{print_string}{spaces}{self.BIDSpath.fpath}')
         
         return self
-
+# -------------------- GENERATE EVENTS.TSV AND EVENTS.JSON --------------------
     def generate_events(self):
         """generate the events tsv and json files
 
@@ -375,7 +377,7 @@ class Convertor:
         print(f'{print_string}{spaces}{self.BIDSpath.fpath}')
         
         return self
-    
+# ---------------------------- GENERATE EEG.JSON ------------------------------    
     def generate_sidecar_json(self,
                               task_description = None,
                               instructions = None,
@@ -489,7 +491,7 @@ class Convertor:
         print(f'{print_string}{spaces}{self.BIDSpath.fpath}')
         
         return self
-
+# ----------------------------- GENERATE EEG.EDF ------------------------------
     def convert_eeg(self):
         self.BIDSpath.update(suffix = 'eeg', extension = '.edf')
         mne.export.export_raw(self.BIDSpath.fpath,self.raw, overwrite=False)
@@ -499,3 +501,148 @@ class Convertor:
         print(f'{print_string}{spaces}{self.BIDSpath.fpath}')
 
         return self
+
+class TerminalConsole:
+    def __init__(self):
+        pass
+
+    def experimenter_name(self):
+        self.experimenter = input('Enter experimenter first and last name then press enter: ')
+        return self
+    
+    def root_path(self):
+        self.root = input('''Enter the full path where the files will be saved (example: ~/ or C://Documents) then press enter. Press CTRL + C to cancel: ''')
+        return self
+    
+    def electrodes_loc_xml(self):
+        self.electrodes_loc_xml = input('''Enter the full path to the xml file containing the electrodes coordinates (GeoScan) or drag and drop the file here then press enter. Press CTRL + C to cancel: ''')
+        return self
+    
+    def eeg_filename(self):
+        self.eeg_filename = input('''Enter the full path to the raw EEG file or drag and drop the file here then press enter. The file name should respect the BIDS format. Press CTRL + C to cancel: ''')
+        return self
+    
+    def date(self):
+        date = datetime.now().strftime("%Y-%m-%dT%H:%M:%SUTC%z")
+        answer = query_yes_no(f'Is {date} the right date and time?')
+        if answer == 'no':
+            date = input('Enter the date and time in the following format YYYY-MM-DDTHH:MM:SSUTC+/-HH:MM: ')
+        self.date = date
+        return self
+    
+    def montages(self):
+        while answer == 'no':
+            montages = get_builtin_montages() + get_builtin_ch_adjacencies()
+            montage_name = console_menu(montages)
+            answer = query_yes_no(f'You selected {montage_name}. Is that correct?')
+        self.montage_name = montage_name
+        return self
+    
+    def subject(self, default_value = None):
+        if default_value:
+            previous_value = ' '.join('previous value:', default_value)
+        else:
+            previous_value = ''
+        self.subject = input(f'Enter the subject name then press enter {previous_value}: ')
+        return self
+
+    def session(self, default_value = None):
+        if default_value:
+            previous_value = ' '.join('previous value:', default_value)
+        else:
+            previous_value = ''
+        self.session = input(f'Enter the session name then press enter {previous_value}: ')
+        return self
+
+    def task(self, default_value = None):
+        if default_value:
+            previous_value = ' '.join('previous value:', default_value)
+        else:
+            previous_value = ''
+        self.task = input(f'Enter the task name then press enter {previous_value}: ')
+        return self
+
+    def datatype(self, default_value = None):
+        if default_value:
+            previous_value = ' '.join('previous value:', default_value)
+        else:
+            previous_value = ''
+        self.datatype = input(f'Enter the datatype name then press enter {previous_value}: ')
+        return self
+    
+    def notes(self, default_value = None):
+        if default_value:
+            previous_value = ' '.join('previous value:', default_value)
+        else:
+            previous_value = ''
+        self.notes = input(f'Enter eventual notes then press enter {previous_value}: ')
+        return self
+    
+def console_menu(options = None):
+    """consnole_menu
+    This function is used to generate a console menu to select the montage used for the EEG experiment.
+
+    Returns:
+        output (str): name of the montage selected
+    """
+    terminal_menu = TerminalMenu(options, title="Select the montage used for the EEG experiment (use arros to navigate and Enter to select):)")
+    menu_entry_index = terminal_menu.show()
+    output = options[menu_entry_index]
+    return output
+
+def query_yes_no(question, default="no"):
+    """Ask a yes/no question via raw_input() and return their answer.
+    
+    Args:
+        question (str): A string that is presented to the user.
+        default (str): The presumed answer if the user just hits <Enter>.
+            It must be "yes" (the default), "no" or None (meaning
+            an answer is required of the user).
+
+    Returns:
+        choice (str): The "answer" return value is one of "yes" or "no".
+    """
+    valid = {"yes":"yes", "no":"no"}
+    if default == None:
+        prompt = " [yes/no] "
+    elif default == "yes":
+        prompt = " [YES/no] "
+    elif default == "no":
+        prompt = " [yes/NO] "
+    else:
+        raise ValueError("invalid default answer: '%s'" % default)
+
+    while 1:
+        sys.stdout.write(question + prompt)
+        choice = input().lower()
+        if default is not None and choice == '':
+            return default
+        elif choice in valid.keys():
+            return valid[choice]
+        else:
+            sys.stdout.write("Please respond with 'yes' or 'no'")
+    return choice
+
+
+# ==============================================================================
+#                               MAIN FUNCTION 
+# ==============================================================================
+def Main():
+    console = TerminalConsole()
+    console.experimenter_name()
+    console.date()
+    console.root_path()
+    console.electrodes_loc_xml()
+    console.eeg_filename()
+    console.montages()
+    console.notes()
+    
+    
+    answer = 'no'
+    montages = get_builtin_montages() + get_builtin_ch_adjacencies()
+    while answer == 'no':
+        montage_name = console_menu(montages)
+        answer = query_yes_no(f'You selected {montage_name}. Is that correct?')
+    
+if __name__ == '__main__':
+    Main()

@@ -7,9 +7,20 @@ name = "eeg_modules"
 authors = [{name = "Samuel Louviot", email = "sam.louviot@gmail.com"}]
 readme = "README.rst"
 requires-python = ">=3.9"
+dependencies = 
+	"numpy",
+    "pandas",
+    "mne>1.4.0",
+    "pyprep",
+    "mne_bids"
+    "simple-term-menu"
+]
 classifiers = [
 	"Programming Language :: Python :: 3",
 	"License :: OSI Approved :: MIT License",
 	"Operating System :: OS Independent",
 ]
 dynamic = ["version", "description"]
+[project.urls]
+Documentation = "https://sam54000-modules.readthedocs.io/en/latest/index.html"
+Repository = "https://github.com/Sam54000/eeg_modules"

@@ -46,16 +46,21 @@ from mne.preprocessing import ICA, read_ica
 # ==============================================================================
 def apply_custom_baseline(data, time_window=None, method="mean"):
     """apply_custom_baseline.
-    Apply a custom baseline to the data before a time-frequency analysis.
+    Apply a custom baseline to the data for a time-frequency analysis.
 
     Args:
-        data (:obj: mne.io.Raw | mne.Epochs): An instance of mne.io.Raw or mne.Epochs.
+        data (:obj:`mne.io.Raw` | :obj:`mne.Epochs`): An instance of mne.io.Raw or mne.Epochs.
         time_window (tuple, optional): The time window in seconds to use for the baseline. Defaults to None.
         method (str, optional): Method for applying the baseline. Can be:
-            - "mean": The Defaults to "mean".
+            - "mean": Data are substracted by the mean calculated within the time window.
+            - "ratio": Data are divided by the mean calculated within the time window.
+            - "zscore": Data are substracted by the mean calculated within the time window 
+                and divided by the standard deviation.
+            - "logratio": log10 of data divided by the mean calculated within the time window
 
     Returns:
-        _type_: _description_
+        baseline_applied (:obj:`mne.time_frequency.EpochsTFR`): The time frequency calculated 
+            with the baseline applied.
     """
     
     d = data.get_data()
@@ -131,18 +136,16 @@ def prompt_message(
 
 def run_ica(raw,n_components = 0.999, vizualisation=False, apply=False, **kwargs):
     """run_ica.
-    Decomposition by independant component analysis.
+    Special wrapper for Independant Component Analysis (ICA) from mne-python.
 
-    Parameters
-    ----------
-    raw : (mne raw object)
-        mne raw object
-    BIDSformatPath : (object)
-        simplierBIDS object
-    vizualisation : (bool)
-        indicates if the source will be plotted (Default to `True`)
-    apply : (bool)
-        indicates wether to apply the ica back to the raw object
+    Args:
+        raw (:obj:`mne.io.Raw`): Instance of mne.io.Raw.
+        n_components (int | float, optional): The number of components to compute. 
+            If `n_components` is `float` computes the maximum number of 
+            component that explain `n_components` the standard deviation. For more
+            details see: https://mne.tools/stable/generated/mne.preprocessing.ICA.html#mne.preprocessing.ICA
+            Defaults to 0.999.
+
     """
 
     raw.interpolate_bads(reset_bads=True)
@@ -167,15 +170,19 @@ def run_ica(raw,n_components = 0.999, vizualisation=False, apply=False, **kwargs
     return ica
 
 def read_data_and_ica(raw_filename, ica_filename=None):
-    """readDataAndICA.
-    read raw data and apply ica
-
-    Parameters
-    ----------
-    raw_filename : (`str`)
-        the filename of the saved mne raw object
-    ica_filename : (`str`)
-        the filename of the saved mne ica object
+    """read_data_and_ica.
+    Read the raw data and apply the ICA if an ICA object is provided.
+    
+    Args: 
+        raw_filename (str | path-like): The filename of the raw data should be in '.fif' format
+            because ICA is usually applied on preprocessed data previously done with mne-python
+            (bad segments annotated, prep pipeline done).
+        ica_filename (str | path-like | None, optional): The filename of the ICA object.
+            Defaults to None.
+    
+    Returns:
+        raw (:obj:`mne.io.Raw`): A mne.io.Raw instance with ICA applied.
+    
     """
     raw = read_raw_fif(raw_filename, preload=True)
     raw.interpolate_bads(reset_bads=True)
@@ -197,31 +204,21 @@ class epochs_stats:
     to another. The cue onset time is always the same.
 
     Args:
-        data : (`mne.Epochs object`)
-            Epochs generated from MNE-python. It needs to contain metadata read
-            from eprime file. The metadata must contain the following column:
-            'PreTargetDuration'.
-        metadata : (`pandas.DataFrame`)
-            Metadata read from eprime file.
+        data (:obj:`mne.Epochs`): Instance of mne.Epochs. It needs to contain metadata read
+            from eprime file. The metadata must contain the column 'PreTargetDuration'.
+        metadata (:obj:`pandas.DataFrame`): Metadata read from eprime file.
 
     Attributes:
-        average (:obj: numpy.ndarray): The average calculated
-        std (:obj: numpy.ndarray): The standard deviation calculated
-        slope : (:obj: numpy.ndarray): The slope calculated
-        maximum : (`numpy.ndarray`)
-            the maximum calculated
-        minimum : (`numpy.ndarray`)
-            the minimum calculated
-        median : (`numpy.ndarray`)
-            the median calculated
-        index_max : (`numpy.ndarray`)
-            the index of the maximum calculated
-        index_min : (`numpy.ndarray`)
-            the index of the minimum calculated
-        fixation_duration : (`tuple`)
-            the time between the fixation cross and the cue
-        event_names : (`tuple`)
-            the name of the event
+        average (:obj:`numpy.ndarray`): The average calculated
+        std (:obj:`numpy.ndarray`): The standard deviation calculated
+        slope (:obj:`numpy.ndarray`): The slope calculated
+        maximum (:obj:`numpy.ndarray`): Maximum value within the time window
+        minimum (:obj:`numpy.ndarray`): Minimum value within the time window
+        median (:obj:`numpy.ndarray`): The median calculated within the time window
+        time_max (:obj:`numpy.ndarray`): Time in seconds of the maximum value within the time window
+        time_min (:obj:`numpy.ndarray`): Time in seconds of the minimum value within the time window
+        fixation_duration (tuple): Time in seconds between the fixation cross and the cue
+        event_names (tuple): the name of the event
 
     """
 
@@ -309,9 +306,9 @@ class epochs_stats:
         self.std = std
         self.slope = slope
         self.maximum = maximum
-        self.index_max = idx_max
+        self.time_max= idx_max * data.info["sfreq"]
         self.minimum = minimum
-        self.index_min = idx_min
+        self.time_min = idx_min * data.info["sfreq"]
         self.median = median
         self.fixation_duration = fixation_duration
         self.event_names = event_names
@@ -331,8 +328,8 @@ class epochs_stats:
             channel_name (str): The name of the channel to select.
 
         Returns
-            epochs_stats (:obj:`epochs_stats`): An epochs_stats object with only 
-            the data from the selected channel.
+            epochs_stats (:obj:`epochs_stats`): The modified instance with statistics for only
+                the selected channels.
         """
 
         # Get the index of the selected channel
@@ -359,7 +356,7 @@ class epochs_stats:
         Save the object as a pickle file.
 
         Args:
-            filename (str or path-like): Filename of the saved file.
+            filename (str | path-like): Filename of the saved file.
         """
         with open(filename, "wb") as f:
             pickle.dump(self, f, protocol=pickle.HIGHEST_PROTOCOL)
@@ -412,7 +409,7 @@ def create_ssd_object(instance, band="theta", saving_filename=None, save=False):
     of interest.
 
     Args:
-        instance (:obj: `mne.raw` or :obj:`mne.epochs`): The instance from which the ssd object will be estimated.
+        instance (:obj:`mne.raw` | :obj:`mne.epochs`): The instance from which the ssd object will be estimated.
         band (str): Frequency band of interest.
         saving_filename (str | None): If save = `True`, the filename under which the ssd object will be saved. Defaults to `None`.
         save (bool): Indiciate if the object will be saved under the name of saving_filename. Defaults to `False`.

@@ -38,7 +38,7 @@ import os
 #                       IMPORTS CUSTOM MODULES AND PACKAGES
 # ==============================================================================
 import mne                                    # pip install mne or conda install mne
-from usefull_functions import prompt_message  # Think about coding setup.py
+from processing_functions import prompt_message  # Think about coding setup.py
 import numpy as np                            # pip install numpy or conda install numpy
 import pyprep                                 # pip install pyprep or conda install -c conda-forge pyprep
 
@@ -54,11 +54,11 @@ def ref_naming(raw,desired_ref_name='Cz'):
     a flat channel named with the desired ref name (because ref channel in EGI system are flat)
 
     Args:
-        raw (:obj:mne.io.Raw): raw data
+        raw (:obj:`mne.io.Raw`): raw data
         desired_ref_name (str, optional): desired name of the reference. Defaults to 'Cz'.
     
     Returns:
-        raw (:obj:mne.io.Raw object): raw data with the reference renamed in place.
+        raw (:obj:`mne.io.Raw`): raw data with the reference renamed in place.
 
     """
     # Get the name of the reference
@@ -165,30 +165,6 @@ def get_stim_chan_name(raw, selection = None):
     
 
     return stim_chan_names, stim_chan_data
-
-def run_eog_projection(
-    raw,
-    eog_electrodes=["E8", "E25", "E21", "E14", "E22", "E9"],
-):
-    """run_eog_projection.
-
-    Parameters
-    ----------
-    raw : (`mne.Raw` or `mne.Epochs` objects)
-        data object obtained with mne
-    eog_electrodes : (`list` of `str`)
-        list of eog electrodes to use for the eog projection
-    """
-    existing_eog = [
-        i for i in eog_electrodes if i in raw.info["ch_names"]
-    ]  # in case of some electrodes have been dropped
-
-    eog_projs, eog_events = mne.preprocessing.compute_proj_eog(
-        raw, ch_name=existing_eog
-    )
-    raw.add_proj(eog_projs).apply_proj()
-
-    return raw
 
 def preprocess_eeg_ant(raw, montage_name="GSN-HydroCel-129"):
     """preprocess_eeg_ant.
@@ -430,7 +406,7 @@ def preprocess_eeg_resting(raw, montage_name="GSN-HydroCel-129"):
     """Detect eyes open and eyes close events and annotate them.
 
     Args:
-        raw (:obj: mne.io.raw): An instance of mne.io.Raw.
+        raw (:obj:`mne.io.raw`): An instance of mne.io.Raw.
         montage_name (str, optional): provide the name of the montage of the cap used during the experiment.
             values has to follow the mne naming standard. For a list of acceptable
             values run `mne.channels.get_builtin_montages(descriptions=False).
@@ -438,7 +414,7 @@ def preprocess_eeg_resting(raw, montage_name="GSN-HydroCel-129"):
             to True. Defaults to "GSN-HydroCel-129".
 
     Returns:
-        raw (:obj: mne.io.raw): An instance of mne.io.Raw with annotations
+        raw (:obj:`mne.io.raw`): An instance of mne.io.Raw with annotations
         spec (dict): dictionnary with the number of events for each event type
     """
     EVENT_DURATION = 90
@@ -539,10 +515,10 @@ def extract_resting_block(raw):
     Extract resting blocks from raw data based on annotations
     
     Args:
-        raw (:obj: mne.io.raw): An instance of mne.io.Raw.
+        raw (:obj:`mne.io.raw`): An instance of mne.io.Raw.
     
     Returns:
-        raw_concatenated (:obj: mne.io.raw): An instance mne.io.Raw resulting from a concatenation of extracted blocks
+        raw_concatenated (:obj:`mne.io.raw`): An instance mne.io.Raw resulting from a concatenation of extracted blocks
     """
 
     prompt_message(
@@ -589,10 +565,10 @@ def extract_ant_blocks(raw):
     Extract ant blocks from raw data based on annotations
 
     Args:
-        raw (:obj: mne.io.Raw): An instance of mne.io.Raw.
+        raw (:obj:`mne.io.Raw`): An instance of mne.io.Raw.
 
     Returns:
-        raw_concatenated (:obj: mne.io.Raw): An instance mne.io.Raw resulting from a concatenation of extracted blocks
+        raw_concatenated (:obj:`mne.io.Raw`): An instance mne.io.Raw resulting from a concatenation of extracted blocks
         pulses_stats (dict): dictionnary with the number of events for each event type
     """
     prompt_message(
@@ -724,14 +700,14 @@ def run_prep(raw, montage_name="GSN-HydroCel-129"):
     Run the prep pipeline on the raw data
 
     Args:
-        raw (:obj: mne.io.Raw): An instance of mne.io.Raw.
+        raw (:obj:`mne.io.Raw`): An instance of mne.io.Raw.
         montage_name (str, optional): provide the name of the montage of the cap used during the experiment.
             values has to follow the mne naming standard. For a list of acceptable
             values run `mne.channels.get_builtin_montages(descriptions=False).
             To get a list of tuples (montage name, description), pass descriptions to True. Default "GSN-HydroCel-129"
 
     Returns:
-        prep (:obj: pyprep.prep): An instance of pyprep.prep
+        prep (:obj:`pyprep.prep`): An instance of pyprep.prep
     """
     prompt_message(
         "- running prep -",

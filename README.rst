@@ -14,3 +14,6 @@ to adapt them to your own needs.
 .. _mne_bids: https://mne.tools/mne-bids/stable/index.html
 .. _pyprep: https://pyprep.readthedocs.io/en/latest/
 .. _Sudhin Shah's lab: https://radiology.weill.cornell.edu/research/brain-health-imaging-institute/sudhin-shah-laboratory
+
+.. [#] Fan, J., McCandliss, B. D., Sommer, T., Raz, A., & Posner, M. I. (2002). Testing the efficiency and independence of attentional networks. Journal of cognitive neuroscience, 14(3), 340-347. https://www.mitpressjournals.org/doi/abs/10.1162/089892902317361886
+.. [#] Fan, J., McCandliss, B. D., Fossella, J., Flombaum, J. I., & Posner, M. I. (2005). The activation of attentional networks. Neuroimage, 26(2), 471-479. https://www.sciencedirect.com/science/article/pii/S1053811905000416
