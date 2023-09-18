@@ -13,7 +13,7 @@ dependencies = [
     "pandas",
     "mne>1.4.0",
     "pyprep",
-    "mne_bids"
+    "mne_bids",
     "simple-term-menu"
 ]
 classifiers = [
