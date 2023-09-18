@@ -156,4 +156,7 @@ cython_debug/
 # DS_Store
 .DS_Store
 
+# VS codes workspace
+*.code-workspace
+
 # End of https://www.toptal.com/developers/gitignore/api/python,jupyternotebooks

@@ -7,7 +7,7 @@ name = "eeg_modules"
 authors = [{name = "Samuel Louviot", email = "sam.louviot@gmail.com"}]
 readme = "README.rst"
 requires-python = ">=3.9"
-dependencies = 
+dependencies = [
 	"numpy",
     "pandas",
     "mne>1.4.0",

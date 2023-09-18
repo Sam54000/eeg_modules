@@ -20,32 +20,6 @@ to adapt them to your own needs.
 .. _pyprep: https://pyprep.readthedocs.io/en/latest/
 .. _Sudhin Shah's lab: https://radiology.weill.cornell.edu/research/brain-health-imaging-institute/sudhin-shah-laboratory
    
-
-.. _Installation:
-
-Installation
-____________
-
-To install the package:
-
-1. Clone the repository on your computer
-
-.. code-block:: console
-
-   $ git clone https://github.com/Sam54000/eeg_modules.git
-
-2. Move to the newly cloned repository ``eeg_modules`` on your computer
-
-.. code-block:: console
-
-   $ cd eeg_modules
-
-3. Install the package using ``pip``
-
-.. code-block:: console
-
-   $ python -m pip install -e .
-
 .. note::
 
    This project is under active development.
@@ -57,7 +31,7 @@ Contents
 --------
 
 .. toctree::
-
+   :maxdepth: 4
    usage
    BIDS conversion
    preprocess_eeg

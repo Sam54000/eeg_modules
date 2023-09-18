@@ -23,10 +23,16 @@ extensions = [
 intersphinx_mapping = {
     'python': ('https://docs.python.org/3/', None),
     'sphinx': ('https://www.sphinx-doc.org/en/master/', None),
+    'mne': ('https://mne.tools/stable/', None),
+    'mne_bids': ('https://mne.tools/mne-bids/stable/', None),
+    'numpy': ('https://numpy.org/doc/stable/', None),
 }
 intersphinx_disabled_domains = ['std']
 
 templates_path = ['_templates']
+
+napoleon_google_docstring = True
+napoleon_numpy_docstring = True
 
 # -- Options for HTML output
 
