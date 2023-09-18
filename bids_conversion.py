@@ -380,6 +380,8 @@ class Convertor:
         return self
 # ---------------------------- GENERATE EEG.JSON ------------------------------    
     def generate_sidecar_json(self,
+                              date_created = None,
+                              experiment_date = None,
                               task_description = None,
                               instructions = None,
                               cogatlas = None,
@@ -479,6 +481,8 @@ class Convertor:
           },
           "RecordingDuration":rec_duration,
           "RecordingType":"continuous", 
+          "DateCreated": date_created,
+          "ExperimentDate": experiment_date,
         }
         if recording_type == 'epoched':
           self.description['EpochLength'] = self.raw.times[1] - self.raw.times[0]
@@ -645,5 +649,8 @@ if __name__ == '__main__':
         convertor.electrodes_description()
     convertor.channel_description()
     convertor.generate_events()
-    convertor.generate_sidecar_json()
+    convertor.generate_sidecar_json(experimenter = form_data["Experimenter"],
+                                    date_created=form_data["Date"],
+                                    experiment_date = form_data["Experiment Date"],
+                                    )
     convertor.convert_eeg()
