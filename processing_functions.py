@@ -99,7 +99,7 @@ def prompt_message(
     message_alignment="centered",
 ):
     """prompt_message.
-    Print message on the prompt with nice formating
+    Print messages on the prompt with nice formating
 
     Args:
         message (str): The message to print
@@ -363,24 +363,28 @@ class epochs_stats:
 
     # TODO def plot()
 
-def parse_extrema(overall_data, nb_epochs, time, sub_list):
-    samples = round(np.median(nb_epochs) * 0.25)
-    low = list()
-    high = list()
-    low_time = list()
-    high_time = list()
-
-    for subj in range(np.shape(overall_data)[0]):
-        for cond in range(np.shape(overall_data[subj])[0]):
-            ordered_idx = np.argsort(np.squeeze(overall_data[subj][cond]))
-            sorted_time = np.squeeze(time[subj][cond][:, 0])[ordered_idx]
-            sorted_data = np.squeeze(overall_data[subj][cond])[ordered_idx]
-            low.append(sorted_data[:samples])
-            high.append(sorted_data[-samples:])
-            low_time.append(sorted_time[:samples])
-            high_time.append(sorted_time[-samples:])
-
-    return low, high, low_time, high_time
+def parse_extrema(overall_metadata, value_to_parse = 'reaction_time'):
+    """parse_extrema.
+    Calculate the first and last quartile of data.
+    
+    Args:
+        overall_data (:obj:`pandas.DataFrame`): Dataframe from which the extrema will be calculated.
+            Should be a dataframe with the columns 'subject', 'value', 'reaction_time' and 'condition'.
+        value_to_parse (str, optional): The column name of the value to parse. Defaults to 'reaction_time'.
+    
+    """
+    quartile = round(0.25*np.median(overall_metadata.groupby('subject').value_counts()))
+    if value_to_parse == 'reaction_time':
+        qual = ['slowest','fastest']
+    else:
+        qual = ['highest','lowest']
+    
+    for h,q in zip(['head','tail'],qual):
+        overall_metadata.loc[getattr(
+            overall_metadata.sort_values(
+                value_to_parse,
+                ascending = False).groupby(['condition',
+                                            'subject']),h)(quartile).index,value_to_parse+'qual'] = q
 
 def apply_ssd(ssd, epochs):
     """apply_ssd.
