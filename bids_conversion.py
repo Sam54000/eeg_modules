@@ -62,6 +62,7 @@ import sys
 import xml.etree.ElementTree as ET
 from pathlib import Path
 from datetime import datetime
+import curses
 
 # ==============================================================================
 #                       IMPORTS CUSTOM MODULES AND PACKAGES
@@ -73,6 +74,7 @@ from mne.channels import get_builtin_montages, get_builtin_ch_adjacencies
 
 import mne_bids #pip install mne-bids or conda install mne-bids
 
+from processing_functions import prompt_message
 from preprocess_eeg import *
 
 # ==============================================================================
@@ -106,7 +108,6 @@ class Convertor:
             self.raw,_ = preprocess_eeg_ant(self.raw, montage_name="GSN-HydroCel-129")
         elif self.BIDSentities_from_eeg['task'].lower() == 'rest':
             self.raw,_ = preprocess_eeg_resting(self.raw, montage_name="GSN-HydroCel-129")
-
 # ---------------- GENERATE ELECTRODES.TSV AND ELECTRODES.JSON ----------------
     def electrodes_description(self,
                                elec_type = 'sponge',
@@ -502,90 +503,71 @@ class Convertor:
 
         return self
 
-class TerminalConsole:
-    def __init__(self):
-        pass
+import curses
+from collections import OrderedDict
 
-    def experimenter_name(self):
-        self.experimenter = input('Enter experimenter first and last name then press enter: ')
-        return self
-    
-    def root_path(self):
-        self.root = input('''Enter the full path where the files will be saved (example: ~/ or C://Documents) then press enter. Press CTRL + C to cancel: ''')
-        return self
-    
-    def electrodes_loc_xml(self):
-        self.electrodes_loc_xml = input('''Enter the full path to the xml file containing the electrodes coordinates (GeoScan) or drag and drop the file here then press enter. Press CTRL + C to cancel: ''')
-        return self
-    
-    def eeg_filename(self):
-        self.eeg_filename = input('''Enter the full path to the raw EEG file or drag and drop the file here then press enter. The file name should respect the BIDS format. Press CTRL + C to cancel: ''')
-        return self
-    
-    def date(self):
-        date = datetime.now().strftime("%Y-%m-%dT%H:%M:%SUTC%z")
-        answer = query_yes_no(f'Is {date} the right date and time?')
-        if answer == 'no':
-            date = input('Enter the date and time in the following format YYYY-MM-DDTHH:MM:SSUTC+/-HH:MM: ')
-        self.date = date
-        return self
-    
-    def montages(self):
-        while answer == 'no':
-            montages = get_builtin_montages() + get_builtin_ch_adjacencies()
-            montage_name = console_menu(montages)
-            answer = query_yes_no(f'You selected {montage_name}. Is that correct?')
-        self.montage_name = montage_name
-        return self
-    
-    def subject(self, default_value = None):
-        if default_value:
-            previous_value = ' '.join('previous value:', default_value)
-        else:
-            previous_value = ''
-        self.subject = input(f'Enter the subject name then press enter {previous_value}: ')
-        return self
+def create_form(stdscr, form_data = None):
+    # Initialize the curses library
+    curses.curs_set(1)
+    stdscr.clear()
+    stdscr.refresh()
 
-    def session(self, default_value = None):
-        if default_value:
-            previous_value = ' '.join('previous value:', default_value)
-        else:
-            previous_value = ''
-        self.session = input(f'Enter the session name then press enter {previous_value}: ')
-        return self
+    # Create an ordered dictionary to store form entries
 
-    def task(self, default_value = None):
-        if default_value:
-            previous_value = ' '.join('previous value:', default_value)
-        else:
-            previous_value = ''
-        self.task = input(f'Enter the task name then press enter {previous_value}: ')
-        return self
+    # Set the initial cursor position
+    current_row = 0
 
-    def datatype(self, default_value = None):
-        if default_value:
-            previous_value = ' '.join('previous value:', default_value)
-        else:
-            previous_value = ''
-        self.datatype = input(f'Enter the datatype name then press enter {previous_value}: ')
-        return self
-    
-    def notes(self, default_value = None):
-        if default_value:
-            previous_value = ' '.join('previous value:', default_value)
-        else:
-            previous_value = ''
-        self.notes = input(f'Enter eventual notes then press enter {previous_value}: ')
-        return self
-    
-def console_menu(options = None):
+    while True:
+        stdscr.clear()
+        stdscr.addstr(0, 0, "Press 'q' to quit")
+
+        # Display the form entries
+        for i, (field, value) in enumerate(form_data.items()):
+            stdscr.addstr(i + 2, 0, f"{field}: {value}")
+
+        # Highlight the currently selected field
+        stdscr.addstr(current_row + 2, 0, f"{list(form_data.keys())[current_row]}: {form_data[list(form_data.keys())[current_row]]}", curses.A_BOLD)
+
+        stdscr.refresh()
+        curses.echo()
+
+        # Get user input
+        key = stdscr.getch()
+
+        # Quit the form if 'q' is pressed
+        if key == ord('q'):
+            break
+
+        # Move to the next field
+        elif key == curses.KEY_DOWN:
+            current_row = min(current_row + 1, len(form_data) - 1)
+
+        # Move to the previous field
+        elif key == curses.KEY_UP:
+            current_row = max(current_row - 1, 0)
+
+        # Edit the selected field
+        elif key == curses.KEY_ENTER or key in [10, 13]:
+            field = list(form_data.keys())[current_row]
+            stdscr.addstr(current_row + 2, 0, f"{field}: ")
+            stdscr.refresh()
+            value = stdscr.getstr(current_row + 2, len(field) + 2).decode('utf-8')
+            form_data[field] = value
+
+    # When the user quits, return the form data as a dictionary
+    return dict(form_data)
+
+def console_menu(options = None, title = None):
     """consnole_menu
-    This function is used to generate a console menu to select the montage used for the EEG experiment.
+    This function is used to generate a console menu to select a set of options.
+
+    Args:
+        options (list, optional): List of options to select from. Defaults to None.
 
     Returns:
-        output (str): name of the montage selected
+        output (str): name of the option selected
     """
-    terminal_menu = TerminalMenu(options, title="Select the montage used for the EEG experiment (use arros to navigate and Enter to select):)")
+    terminal_menu = TerminalMenu(options, title=title)
     menu_entry_index = terminal_menu.show()
     output = options[menu_entry_index]
     return output
@@ -625,24 +607,43 @@ def query_yes_no(question, default="no"):
 
 
 # ==============================================================================
-#                               MAIN FUNCTION 
+#                                  MAIN 
 # ==============================================================================
-def Main():
-    console = TerminalConsole()
-    console.experimenter_name()
-    console.date()
-    console.root_path()
-    console.electrodes_loc_xml()
-    console.eeg_filename()
-    console.montages()
-    console.notes()
-    
-    
-    answer = 'no'
-    montages = get_builtin_montages() + get_builtin_ch_adjacencies()
-    while answer == 'no':
-        montage_name = console_menu(montages)
-        answer = query_yes_no(f'You selected {montage_name}. Is that correct?')
-    
 if __name__ == '__main__':
-    Main()
+    eeg_filename = input('Enter the path to the raw EEG file (or drag and drop the file here): ')
+    electrodes_loc_xml = input('Enter the path to the xml file containing the electrodes coordinates (or drag and drop the file here): ')
+    BIDSentities_from_eeg = mne_bids.get_entities_from_fname(eeg_filename)
+    date = datetime.now().astimezone().isoformat(timespec = 'seconds')
+    form_data = {"Date": date,
+                 "Experiment Date": "",
+                 "Experimenter": "",
+                 "Source EEG Filename": eeg_filename.strip("'"),
+                 "Source Electrodes Location Filename": electrodes_loc_xml.strip("'"),
+                 "Root":"",
+                 "Subject": BIDSentities_from_eeg.get('subject'),
+                 "Session": BIDSentities_from_eeg.get('session'),
+                 "Task": BIDSentities_from_eeg.get('task'),
+                 "Datatype": "",
+                 "Notes": "",
+    } 
+    form_data = curses.wrapper(create_form, form_data = form_data)
+    form_data["Montage"] = console_menu(options = get_builtin_montages() + get_builtin_ch_adjacencies(), title = 'Select the montage used during the experiment')
+    expe_log_path = Path(os.path.join(os.getcwd(), 'expe_log'))
+    expe_log_path.mkdir(exist_ok=True) 
+    json_obj = json.dumps(form_data, indent=4)
+    with open(os.path.join(expe_log_path,f'logs'), "a") as outfile:
+        outfile.write(json_obj)
+    
+    BIDSpath = mne_bids.BIDSPath(root=form_data["Root"],
+                                 subject = form_data["Subject"],
+                                 session = form_data["Session"],
+                                 task=form_data["Task"],
+                                 datatype=form_data["Datatype"]
+    )
+    convertor = Convertor(BIDSpath, form_data["Source Electrodes Location Filename"], form_data["Source EEG Filename"])
+    if form_data["Source Electrodes Location Filename"] is not None:
+        convertor.electrodes_description()
+    convertor.channel_description()
+    convertor.generate_events()
+    convertor.generate_sidecar_json()
+    convertor.convert_eeg()
