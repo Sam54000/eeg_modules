@@ -103,8 +103,8 @@ that is specific to the machine that recorded the EEG. For example:
 .. _EGI: https://www.egi.com/egi-file-formats/
 
 .. toctree::
-   :maxdepth: 4
+   :maxdepth: 1
 
-   index
-   usage
+   Introduction
+   Usage
    APIs

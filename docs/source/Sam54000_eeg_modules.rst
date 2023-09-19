@@ -1,11 +1,13 @@
-APIs
+Sam54000\_eeg\_modules package
 ==============================
+
+Submodules
+----------
 
 Sam54000\_eeg\_modules.bids\_conversion module
 ----------------------------------------------
 
 .. automodule:: Sam54000_eeg_modules.bids_conversion
-   :class: Sam54000_eeg_modules.bids_conversion.Convertor
    :members:
    :undoc-members:
    :show-inheritance:
@@ -41,10 +43,3 @@ Module contents
    :members:
    :undoc-members:
    :show-inheritance:
-
-.. toctree::
-   :maxdepth: 1
-   
-   Introduction
-   Usage
-   APIs
