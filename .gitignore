@@ -154,7 +154,9 @@ dmypy.json
 cython_debug/
 
 # DS_Store
+*.DS_Store
 .DS_Store
+.DS_S*
 
 # VS codes workspace
 *.code-workspace
