@@ -105,6 +105,6 @@ that is specific to the machine that recorded the EEG. For example:
 .. toctree::
    :maxdepth: 4
 
-   Introduction
-   Usage
+   index
+   usage
    APIs
