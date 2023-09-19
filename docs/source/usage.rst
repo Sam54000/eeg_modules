@@ -11,23 +11,9 @@ https://mne.tools/stable/install/index.html
 
 To install the package:
 
-1. Clone the repository on your computer
-
 .. code-block:: console
 
-   $ git clone https://github.com/Sam54000/eeg_modules.git
-
-2. Move to the newly cloned repository ``eeg_modules`` on your computer
-
-.. code-block:: console
-
-   $ cd eeg_modules
-
-3. Install the package using ``pip``
-
-.. code-block:: console
-
-   $ python -m pip install -e .
+   $ python3 -m pip install Sam54000_eeg_modules
 
 .. _MNE-python: https://mne.tools/stable/index.html
 .. _install MNE-python: https://mne.tools/stable/install/index.html
@@ -36,5 +22,82 @@ To install the package:
 
 Usage
 _____
-The biggest part of the package is the ``bids_conversion`` module.
 
+BIDS format structure
+^^^^^^^^^^^^^^^^^^^^^
+
+The biggest part of the package is the ``bids_conversion`` module that will convert a source EEG files into a `BIDS compliant dataset for EEG`_.
+An EEG folder in a BIDS format should include the following files:
+
+    * **`An EEG sidecar file`_** wich is in ``.json`` format. It contains general information about the EEG recording. 
+    It has to be named according to the following convention::
+
+        sub-<participant_label>[_ses-<session_label>]_task-<task_label>[_acq-<label>][_rec-<label>][_run-<index>]_eeg.json
+
+    * **`A channels description file`_** which is a ``.tsv`` file. A channel is described as any stream of data which can be TTL triggers, 
+    respiratory belt, EEG electrodes, etc. It has to be named according to the following convention::
+
+        sub-<participant_label>[_ses-<session_label>]_task-<task_label>[_acq-<label>][_rec-<label>][_run-<index>]_channels.tsv
+
+    * **`An electrodes description file`_** which is a ``.tsv`` file that contains the EEG electrodes coordinates.
+        It has to be named according to the following convention::
+
+        sub-<participant_label>[_ses-<session_label>]_task-<task_label>[_acq-<label>][_rec-<label>][_run-<index>]_electrodes.tsv
+
+    * **`A coordinates system file`_** that contains the EEG electrodes coordinates system. It has to be named according to the following convention::
+
+        sub-<participant_label>[_ses-<session_label>]_task-<task_label>[_acq-<label>][_rec-<label>][_run-<index>]_coordsystem.json
+
+    * **`An events file`_** which is a ``.tsv`` file that contains events information. It has to be named according to the following convention::
+
+        sub-<participant_label>[_ses-<session_label>]_task-<task_label>[_acq-<label>][_rec-<label>][_run-<index>]_events.tsv
+
+    * **`An events description file`_** that give additional information about the entry of the events table file.
+        It has to be named according to the following convention::
+
+        sub-<participant_label>[_ses-<session_label>]_task-<task_label>[_acq-<label>][_rec-<label>][_run-<index>]_events.json
+
+    * **The EEG file** that contains the EEG data. It should be in a standardized format such as .edf 
+        (see: `The EEG section on BIDS website`_ for more information on standarized format).
+        It has to be named according to the following convention::
+
+        sub-<participant_label>[_ses-<session_label>]_task-<task_label>[_acq-<label>][_rec-<label>][_run-<index>]_eeg.edf
+
+**EXAMPLE:**
+
+* For one EEG file recorded on an EGI system: ``sub-<label>_ses-<label>_task-<label>_eeg.mff``
+* For one electrodes_location recorded with a GeoScan system: ``sub-<label>_ses-<label>_task-<label>_desc-geoscan.xml``
+
+The program will take the information from the source files (name and data) and will create this tree::
+
+   root
+      |_ sub-<label>
+            |_ ses-<label>
+                  |_ eeg
+                        |_ sub-<label>_ses-<label>_task-<label>_eeg.json
+                        |_ sub-<label>_ses-<label>_task-<label>_channels.tsv
+                        |_ sub-<label>_ses-<label>_task-<label>_electrodes.tsv
+                        |_ sub-<label>_ses-<label>_task-<label>_events.tsv
+                        |_ sub-<label>_ses-<label>_task-<label>_eeg.edf
+
+Step-by-step guide for the conversion
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The EEG file coming directly out of the machine is called ``source`` file. It is a binary file that contains the raw EEG data and has an extension
+that is specific to the machine that recorded the EEG. For example:
+
+* The source file coming from a Biosemi_ machine will have a ``.bdf`` extension
+* The source file coming from a BrainVision_ machine will have a ``.vhdr`` extension
+* The source file coming from a EGI_ machine will have a ``.mff``, ``.RAW`` or ``.raw`` extension
+
+.. _`BIDS compliant dataset for EEG`: https://bids-specification.readthedocs.io/en/stable/04-modality-specific-files/03-electroencephalography.html
+.. _`An EEG sidecar file`: https://bids-specification.readthedocs.io/en/stable/04-modality-specific-files/03-electroencephalography.html#sidecar-json-_eegjson
+.. _`A channels description file`: https://bids-specification.readthedocs.io/en/stable/04-modality-specific-files/03-electroencephalography.html#channels-description-_channelstsv
+.. _`An electrodes description file`: https://bids-specification.readthedocs.io/en/stable/04-modality-specific-files/03-electroencephalography.html#electrodes-description-_electrodestsv
+.. _`A coordinates system file`: https://bids-specification.readthedocs.io/en/stable/04-modality-specific-files/03-electroencephalography.html#coordinate-system-json-_coordsystemjson
+.. _`An events file`: https://bids-specification.readthedocs.io/en/stable/04-modality-specific-files/05-task-events.html#task-events
+.. _`An events description file`: https://bids-specification.readthedocs.io/en/stable/04-modality-specific-files/05-task-events.html#task-events
+.. _`The EEG section on BIDS website`: https://bids-specification.readthedocs.io/en/stable/04-modality-specific-files/03-electroencephalography.html#eeg-recording-data
+.. _Biosemi: https://www.biosemi.com/faq/file_format.htm
+.. _BrainVision: https://www.brainproducts.com/productdetails.php?id=21&tab=5
+.. _EGI: https://www.egi.com/egi-file-formats/

@@ -1,4 +1,6 @@
 # Configuration file for the Sphinx documentation builder.
+import sys
+import os
 
 # -- Project information
 
@@ -10,11 +12,11 @@ release = '0.1'
 version = '0.1.0'
 
 # -- General configuration
+sys.path.insert(0, os.path.abspath('../Sam54000-eeg_modules'))
 
 extensions = [
     'sphinx.ext.duration',
     'sphinx.ext.doctest',
-    'sphinx.ext.autodoc',
     'sphinx.ext.napoleon',
     'sphinx.ext.autosummary',
     'sphinx.ext.intersphinx',
@@ -32,7 +34,7 @@ intersphinx_disabled_domains = ['std']
 templates_path = ['_templates']
 
 napoleon_google_docstring = True
-napoleon_numpy_docstring = True
+napoleon_numpy_docstring = False
 
 # -- Options for HTML output
 

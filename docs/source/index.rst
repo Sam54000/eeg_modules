@@ -31,6 +31,3 @@ to adapt them to your own needs.
 .. toctree::
    :maxdepth: 4
    usage
-   BIDS conversion
-   preprocess_eeg
-   useful_functions
