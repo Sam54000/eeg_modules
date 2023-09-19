@@ -101,3 +101,10 @@ that is specific to the machine that recorded the EEG. For example:
 .. _Biosemi: https://www.biosemi.com/faq/file_format.htm
 .. _BrainVision: https://www.brainproducts.com/productdetails.php?id=21&tab=5
 .. _EGI: https://www.egi.com/egi-file-formats/
+
+.. toctree::
+   :maxdepth: 4
+
+   Introduction
+   Usage
+   APIs

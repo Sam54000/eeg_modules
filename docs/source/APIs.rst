@@ -1,8 +1,5 @@
-Sam54000\_eeg\_modules package
+APIs
 ==============================
-
-Submodules
-----------
 
 Sam54000\_eeg\_modules.bids\_conversion module
 ----------------------------------------------
@@ -43,3 +40,10 @@ Module contents
    :members:
    :undoc-members:
    :show-inheritance:
+
+.. toctree::
+   :maxdepth: 4
+   
+   Introduction
+   Usage
+   APIs
