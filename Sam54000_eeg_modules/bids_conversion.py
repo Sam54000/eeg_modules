@@ -58,7 +58,6 @@ An EEG folder in a BIDS format should include the following files:
 # ==============================================================================
 import json
 import os
-import sys
 import xml.etree.ElementTree as ET
 from pathlib import Path
 from datetime import datetime
@@ -74,8 +73,8 @@ from mne.channels import get_builtin_montages, get_builtin_ch_adjacencies
 
 import mne_bids #pip install mne-bids or conda install mne-bids
 
-from processing_functions import prompt_message
-from preprocess_eeg import *
+from .preprocess_eeg import *
+from .cli import *
 
 # ==============================================================================
 #                               CLASS AND FUNCTIONS
@@ -507,112 +506,29 @@ class Convertor:
 
         return self
 
-import curses
-from collections import OrderedDict
-
-def create_form(stdscr, form_data = None):
-    # Initialize the curses library
-    curses.curs_set(1)
-    stdscr.clear()
-    stdscr.refresh()
-
-    # Create an ordered dictionary to store form entries
-
-    # Set the initial cursor position
-    current_row = 0
-
-    while True:
-        stdscr.clear()
-        stdscr.addstr(0, 0, "Press 'q' to quit")
-
-        # Display the form entries
-        for i, (field, value) in enumerate(form_data.items()):
-            stdscr.addstr(i + 2, 0, f"{field}: {value}")
-
-        # Highlight the currently selected field
-        stdscr.addstr(current_row + 2, 0, f"{list(form_data.keys())[current_row]}: {form_data[list(form_data.keys())[current_row]]}", curses.A_BOLD)
-
-        stdscr.refresh()
-        curses.echo()
-
-        # Get user input
-        key = stdscr.getch()
-
-        # Quit the form if 'q' is pressed
-        if key == ord('q'):
-            break
-
-        # Move to the next field
-        elif key == curses.KEY_DOWN:
-            current_row = min(current_row + 1, len(form_data) - 1)
-
-        # Move to the previous field
-        elif key == curses.KEY_UP:
-            current_row = max(current_row - 1, 0)
-
-        # Edit the selected field
-        elif key == curses.KEY_ENTER or key in [10, 13]:
-            field = list(form_data.keys())[current_row]
-            stdscr.addstr(current_row + 2, 0, f"{field}: ")
-            stdscr.refresh()
-            value = stdscr.getstr(current_row + 2, len(field) + 2).decode('utf-8')
-            form_data[field] = value
-
-    # When the user quits, return the form data as a dictionary
-    return dict(form_data)
-
-def console_menu(options = None, title = None):
-    """consnole_menu
-    This function is used to generate a console menu to select a set of options.
-
-    Args:
-        options (list, optional): List of options to select from. Defaults to None.
-
-    Returns:
-        output (str): name of the option selected
-    """
-    terminal_menu = TerminalMenu(options, title=title)
-    menu_entry_index = terminal_menu.show()
-    output = options[menu_entry_index]
-    return output
-
-def query_yes_no(question, default="no"):
-    """Ask a yes/no question via raw_input() and return their answer.
-    
-    Args:
-        question (str): A string that is presented to the user.
-        default (str): The presumed answer if the user just hits <Enter>.
-            It must be "yes" (the default), "no" or None (meaning
-            an answer is required of the user).
-
-    Returns:
-        choice (str): The "answer" return value is one of "yes" or "no".
-    """
-    valid = {"yes":"yes", "no":"no"}
-    if default == None:
-        prompt = " [yes/no] "
-    elif default == "yes":
-        prompt = " [YES/no] "
-    elif default == "no":
-        prompt = " [yes/NO] "
-    else:
-        raise ValueError("invalid default answer: '%s'" % default)
-
-    while 1:
-        sys.stdout.write(question + prompt)
-        choice = input().lower()
-        if default is not None and choice == '':
-            return default
-        elif choice in valid.keys():
-            return valid[choice]
-        else:
-            sys.stdout.write("Please respond with 'yes' or 'no'")
-    return choice
-
 # ==============================================================================
 #                                  MAIN 
 # ==============================================================================
-if __name__ == '__main__':
+def main():
+    os.system('cls' if os.name == 'nt' else 'clear')
+    title = 'BIDS convertor'
+    message = '''This program will help you to convert your EEG data into a BIDS compatible format. 
+You will be asked first to provide the name of the eeg file you want to convert. 
+This file name has to be in a BIDS format like:
+sub-<participant_label>_ses-<session_label>_task-<task_label>[_acq-<label>][_rec-<label>][_run-<index>]_eeg.<extension>.
+Element between square brackets are optional. Because the file you want to convert 
+is considered as a "source" file, the <extension> is the original extension such as 
+".mff" or ".RAW" when dealing withe EGI. The program will then ask you to provide the 
+path to the xml file containing the electrodes coordinates. If you don't have this file, 
+you can skip this step by pressing enter. You will then be asked to provide some information 
+about the experiment. This information will be saved in a log file (.json).
+
+At any moment, you can press Ctrl+C to exit the program.\n'''
+
+    prompt_message(message=title)
+    print(message)
+    input('\nPRESS A KEY TO CONTINUE')
+    os.system('cls' if os.name == 'nt' else 'clear')
     eeg_filename = input('Enter the path to the raw EEG file (or drag and drop the file here): ')
     electrodes_loc_xml = input('Enter the path to the xml file containing the electrodes coordinates (or drag and drop the file here): ')
     BIDSentities_from_eeg = mne_bids.get_entities_from_fname(eeg_filename)
@@ -653,3 +569,7 @@ if __name__ == '__main__':
                                     experiment_date = form_data["Experiment Date"],
                                     )
     convertor.convert_eeg()
+if __name__ == '__main__':
+    main()
+# TODO: for future release add a better navigation in the CLI (menu, sub-menu, etc.) to be able to go back and forth and modify the
+#       entries
