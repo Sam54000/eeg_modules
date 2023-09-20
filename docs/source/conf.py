@@ -8,11 +8,11 @@ project = 'Sam54000-eeg_modules'
 copyright = '2023, Samuel Louviot'
 author = 'Samuel Louviot'
 
-release = '0.1'
-version = '0.1.0'
+release = '0.0.18'
+version = '0.0.18'
 
 # -- General configuration
-sys.path.insert(0, os.path.abspath('../Sam54000-eeg_modules'))
+sys.path.insert(0, os.path.abspath('../Sam54000_eeg_modules/'))
 sys.path.append(os.path.abspath('sphinxext'))
 
 extensions = [
@@ -30,6 +30,7 @@ intersphinx_mapping = {
 intersphinx_disabled_domains = ['std']
 
 templates_path = ['_templates']
+add_module_names = False
 
 napoleon_google_docstring = True
 napoleon_numpy_docstring = False

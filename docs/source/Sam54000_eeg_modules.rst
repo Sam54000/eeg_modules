@@ -8,9 +8,11 @@ Sam54000\_eeg\_modules.bids\_conversion module
 ----------------------------------------------
 
 .. automodule:: Sam54000_eeg_modules.bids_conversion
+.. autoclass:: Sam54000_eeg_modules.bids_conversion.Convertor
    :members:
    :undoc-members:
    :show-inheritance:
+   :inherited-members:
 
 Sam54000\_eeg\_modules.cli module
 ---------------------------------

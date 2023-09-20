@@ -11,11 +11,12 @@ requires-python = ">=3.9"
 dependencies = [
 	"numpy",
     "pandas",
-    "mne>1.4.0",
-    "pyprep",
-    "mne_bids",
-    "simple-term-menu"
+    "mne >= 1.4.0",
+    "pyprep >= 0.4.1",
+    "mne_bids >= 0.13",
+    "simple-term-menu >= 1.6.1"
 ]
+
 classifiers = [
     "Development Status :: 3 - Alpha",
 	"Programming Language :: Python :: 3",

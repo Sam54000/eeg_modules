@@ -5,3 +5,4 @@ Sam54000_eeg_modules
    :maxdepth: 4
 
    Sam54000_eeg_modules
+   setup
