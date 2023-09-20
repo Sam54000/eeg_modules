@@ -90,6 +90,44 @@ that is specific to the machine that recorded the EEG. For example:
 * The source file coming from a BrainVision_ machine will have a ``.vhdr`` extension
 * The source file coming from a EGI_ machine will have a ``.mff``, ``.RAW`` or ``.raw`` extension
 
+**First step**
+
+First, double check in the recording machine that source files are `HIPPA compliant`_.
+Then transfer the source files from the machine to the computer where you want to convert the EEG files.
+
+Check the name of the source EEG file and make sure that it is in a standardized format::
+    
+   sub-<label>_ses-<label>_task-<label>_eeg.<extension>
+
+Check the name of the source electrodes location file and make sure that it is in a standardized format::
+
+   sub-<label>_ses-<label>_task-<label>_desc-<label>.<extension>
+
+**Second step**
+Run in the terminal
+
+.. code-block:: console
+
+   $ bids_conversion
+
+A first screen will display a documentation  that recapitulate what the program will do 
+and what to prepare.
+
+.. image:: ../images/first_screen.png
+   :width: 100%
+
+Then, the program will ask to enter the path to the source EEG file and the path to the source electrodes location file.
+It is possible to drag and drop the file into the terminal to get the path:
+
+.. code-block:: console
+
+   Enter the path to the source EEG file: /Users/username/folder/sub-<label>_ses-<label>_task-<label>_eeg.<extension>
+   Enter the path to the source electrodes location file: /Users/username/folder/sub-<label>_ses-<label>_task-<label>_desc-<label>.<extension>
+
+**Third step**
+
+
+
 .. _`BIDS compliant dataset for EEG`: https://bids-specification.readthedocs.io/en/stable/04-modality-specific-files/03-electroencephalography.html
 .. _`An EEG sidecar file`: https://bids-specification.readthedocs.io/en/stable/04-modality-specific-files/03-electroencephalography.html#sidecar-json-_eegjson
 .. _`A channels description file`: https://bids-specification.readthedocs.io/en/stable/04-modality-specific-files/03-electroencephalography.html#channels-description-_channelstsv
@@ -101,6 +139,7 @@ that is specific to the machine that recorded the EEG. For example:
 .. _Biosemi: https://www.biosemi.com/faq/file_format.htm
 .. _BrainVision: https://www.brainproducts.com/productdetails.php?id=21&tab=5
 .. _EGI: https://www.egi.com/egi-file-formats/
+.. _`HIPPA compliant`:https://www.hhs.gov/hipaa/for-professionals/security/laws-regulations/index.html
 
 .. toctree::
    :maxdepth: 1

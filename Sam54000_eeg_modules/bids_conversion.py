@@ -73,7 +73,7 @@ from mne.channels import get_builtin_montages, get_builtin_ch_adjacencies
 
 import mne_bids #pip install mne-bids or conda install mne-bids
 
-from .preprocess_eeg import *
+from .preprocess_eeg import read_raw_eeg, preprocess_eeg_ant, preprocess_eeg_resting, calculate_rt
 from .cli import *
 
 # ==============================================================================
