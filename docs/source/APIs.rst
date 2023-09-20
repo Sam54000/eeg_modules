@@ -1,12 +1,10 @@
 APIs
 ==============================
 
-Sam54000\_eeg\_modules.bids\_conversion module
+bids\_conversion module
 ----------------------------------------------
 
-.. automodule:: bids_conversion
-.. autoclass:: bids_conversion.Convertor
-.. automethod:: bids_conversion.Convertor.electrodes_description
+.. autoclass:: Convertor
    :members: 
    :undoc-members:
    :show-inheritance:
