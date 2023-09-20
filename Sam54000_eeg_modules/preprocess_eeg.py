@@ -45,6 +45,7 @@ import pyprep                                 # pip install pyprep or conda inst
 
 from mne.io import read_raw_fif
 from mne.preprocessing import ICA, read_ica
+from .cli import prompt_message
 # ==============================================================================
 #                               CLASS AND FUNCTIONS
 # ==============================================================================
@@ -513,7 +514,7 @@ def preprocess_eeg_resting(raw, montage_name="GSN-HydroCel-129"):
     )
     return raw, spec
 
-def extract_resting_block(raw):
+def extract_resting_block(raw, return_blocks=False):
     """
     Extract resting blocks from raw data based on annotations
     
@@ -551,8 +552,12 @@ def extract_resting_block(raw):
             tmax_crop = annot[idx]["onset"] + annot[idx]["duration"] + margin_time
             resting_blocks.append(raw.copy().crop(tmin=tmin_crop, tmax=tmax_crop))
         raw_concatenated = mne.concatenate_raws(resting_blocks)
+        
+        if return_blocks:
+            return resting_blocks
+        else: 
+            return raw_concatenated
 
-        return raw_concatenated
     else:
         prompt_message(
             """One or all annotations of resting states are missing,
