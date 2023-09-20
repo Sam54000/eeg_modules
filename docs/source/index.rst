@@ -1,5 +1,6 @@
+************
 Introduction
-===================================
+************
 
 Here are useful modules for EEG analysis using MNE-python_, mne_bids_, and pyprep_.
 These modules have been developped in the specific case of the adult_TBI_attention

@@ -1,9 +1,11 @@
+********
 Usage
-=====
+********
+
 .. _Installation:
 
 Installation
-____________
+============
 The package relies on MNE-python_ which is quite heavy and can take a very long time to install.
 I would suggest to install MNE-python_ first and then install this package.
 To `install MNE-python`_ you have several choices that are very well documented on their website:
@@ -21,10 +23,10 @@ To install the package:
 .. _Usage:
 
 Usage
-_____
+=====
 
 BIDS format structure
-^^^^^^^^^^^^^^^^^^^^^
+_____________________
 
 The biggest part of the package is the ``bids_conversion`` module that will convert a source EEG files into a `BIDS compliant dataset for EEG`_.
 An EEG folder in a BIDS format should include the following files:
@@ -63,7 +65,8 @@ An EEG folder in a BIDS format should include the following files:
 
         sub-<participant_label>[_ses-<session_label>]_task-<task_label>[_acq-<label>][_rec-<label>][_run-<index>]_eeg.edf
 
-**EXAMPLE:**
+EXAMPLE:
+^^^^^^^^
 
 * For one EEG file recorded on an EGI system: ``sub-<label>_ses-<label>_task-<label>_eeg.mff``
 * For one electrodes_location recorded with a GeoScan system: ``sub-<label>_ses-<label>_task-<label>_desc-geoscan.xml``
@@ -81,7 +84,7 @@ The program will take the information from the source files (name and data) and 
                         |_ sub-<label>_ses-<label>_task-<label>_eeg.edf
 
 Step-by-step guide for the conversion
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_____________________________________
 
 The EEG file coming directly out of the machine is called ``source`` file. It is a binary file that contains the raw EEG data and has an extension
 that is specific to the machine that recorded the EEG. For example:
@@ -90,7 +93,8 @@ that is specific to the machine that recorded the EEG. For example:
 * The source file coming from a BrainVision_ machine will have a ``.vhdr`` extension
 * The source file coming from a EGI_ machine will have a ``.mff``, ``.RAW`` or ``.raw`` extension
 
-**First step**
+First step
+^^^^^^^^^^
 
 First, double check in the recording machine that source files are `HIPPA compliant`_.
 Then transfer the source files from the machine to the computer where you want to convert the EEG files.
@@ -103,7 +107,9 @@ Check the name of the source electrodes location file and make sure that it is i
 
    sub-<label>_ses-<label>_task-<label>_desc-<label>.<extension>
 
-**Second step**
+Second step
+^^^^^^^^^^^
+
 Run in the terminal
 
 .. code-block:: console
@@ -124,7 +130,8 @@ It is possible to drag and drop the file into the terminal to get the path:
    Enter the path to the source EEG file: /Users/username/folder/sub-<label>_ses-<label>_task-<label>_eeg.<extension>
    Enter the path to the source electrodes location file: /Users/username/folder/sub-<label>_ses-<label>_task-<label>_desc-<label>.<extension>
 
-**Third step**
+Third step
+^^^^^^^^^^
 
 
 
@@ -145,5 +152,5 @@ It is possible to drag and drop the file into the terminal to get the path:
    :maxdepth: 1
 
    Introduction
-   Usage
+   usage
    APIs
