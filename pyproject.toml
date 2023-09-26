@@ -14,7 +14,7 @@ dependencies = [
     "mne >= 1.4.0",
     "pyprep >= 0.4.1",
     "mne_bids >= 0.13",
-    "simple-term-menu >= 1.6.1"
+    "simple-term-menu"
 ]
 
 classifiers = [
