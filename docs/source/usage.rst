@@ -70,7 +70,6 @@ EXAMPLE:
 
 * For one EEG file recorded on an EGI system: ``sub-<label>_ses-<label>_task-<label>_eeg.mff``
 * For one electrodes_location recorded with a GeoScan system: ``sub-<label>_ses-<label>_task-<label>_desc-geoscan.xml``
-
 The program will take the information from the source files (name and data) and will create this tree::
 
    root
@@ -92,7 +91,6 @@ that is specific to the machine that recorded the EEG. For example:
 * The source file coming from a Biosemi_ machine will have a ``.bdf`` extension
 * The source file coming from a BrainVision_ machine will have a ``.vhdr`` extension
 * The source file coming from a EGI_ machine will have a ``.mff``, ``.RAW`` or ``.raw`` extension
-
 First step
 ^^^^^^^^^^
 
@@ -148,7 +146,8 @@ Third step
 .. _`HIPPA compliant`:https://www.hhs.gov/hipaa/for-professionals/security/laws-regulations/index.html
 
 .. toctree::
-   :maxdepth: 0
+   :maxdepth: 1
+   
    Introduction
    Usage
    APIs

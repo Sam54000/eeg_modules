@@ -8,11 +8,11 @@ project = 'Sam54000-eeg_modules'
 copyright = '2023, Samuel Louviot'
 author = 'Samuel Louviot'
 
-release = '0.0.18'
-version = '0.0.18'
+release = '0.0.23'
+version = '0.0.23'
 
 # -- General configuration
-sys.path.insert(0, os.path.abspath('../Sam54000_eeg_modules/'))
+sys.path.insert(os.path.abspath('User/samuel/codes/Sam54000_eeg_modules/Sam54000_eeg_modules/'))
 sys.path.append(os.path.abspath('sphinxext'))
 
 extensions = [
