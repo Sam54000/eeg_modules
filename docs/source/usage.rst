@@ -119,8 +119,7 @@ Run in the terminal
 A first screen will display a documentation  that recapitulate what the program will do 
 and what to prepare.
 
-.. image:: images/first_screen.png
-   :width: 50%
+.. figure:: images/first_screen.png
 
 Then, the program will ask to enter the path to the source EEG file and the path to the source electrodes location file.
 It is possible to drag and drop the file into the terminal to get the path:
