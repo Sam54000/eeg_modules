@@ -146,3 +146,9 @@ Third step
 .. _BrainVision: https://www.brainproducts.com/productdetails.php?id=21&tab=5
 .. _EGI: https://www.egi.com/egi-file-formats/
 .. _`HIPPA compliant`:https://www.hhs.gov/hipaa/for-professionals/security/laws-regulations/index.html
+
+.. toctree::
+   :maxdepth: 0
+   Introduction
+   Usage
+   APIs
