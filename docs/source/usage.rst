@@ -152,5 +152,5 @@ Third step
    :maxdepth: 1
 
    Introduction
-   usage
+   Usage
    APIs
