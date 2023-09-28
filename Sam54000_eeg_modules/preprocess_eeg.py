@@ -141,7 +141,8 @@ def read_raw_eeg(filename, preload=False):
     else:
         print(f"File {filename} doesn't exist")
         status = "nonexistent"
-        return status
+        raw = []
+        return raw, status
 
 def get_stim_chan_name(raw, selection = None):
     """get_stim_chan_name.

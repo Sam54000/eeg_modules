@@ -392,7 +392,8 @@ class Convertor:
                               eeg_placement_scheme = '5-10',
                               ref_name = 'Cz',
                               eeg_ground = 'placed on CPz',
-                              recording_type = 'continuous'
+                              recording_type = 'continuous',
+                              experimenter = None
                               ):
         """generate the sidecar json file
 
@@ -440,6 +441,8 @@ class Convertor:
             else:
                 misc+=1
         rec_duration = self.raw.get_data().shape[1]/ self.raw.info['sfreq']
+        if self.raw.info.get('experimenter') is None:
+            self.raw.info['experimenter'] = experimenter
         self.description = {
           "Experimenter": self.raw.info['experimenter'],
           "TaskName":self.BIDSpath.task,
@@ -553,20 +556,20 @@ At any moment, you can press Ctrl+C to exit the program.\n'''
     with open(os.path.join(expe_log_path,f'logs'), "a") as outfile:
         outfile.write(json_obj)
     
-    BIDSpath = mne_bids.BIDSPath(root=form_data["Root"],
-                                 subject = form_data["Subject"],
-                                 session = form_data["Session"],
-                                 task=form_data["Task"],
-                                 datatype=form_data["Datatype"]
+    BIDSpath = mne_bids.BIDSPath(root=form_data.get("Root"),
+                                 subject = form_data.get("Subject"),
+                                 session = form_data.get("Session"),
+                                 task=form_data.get("Task"),
+                                 datatype=form_data.get("Datatype")
     )
     convertor = Convertor(BIDSpath, form_data["Source Electrodes Location Filename"], form_data["Source EEG Filename"])
     if form_data["Source Electrodes Location Filename"] is not None:
         convertor.electrodes_description()
     convertor.channel_description()
     convertor.generate_events()
-    convertor.generate_sidecar_json(experimenter = form_data["Experimenter"],
-                                    date_created=form_data["Date"],
-                                    experiment_date = form_data["Experiment Date"],
+    convertor.generate_sidecar_json(experimenter = form_data.get("Experimenter"),
+                                    date_created=form_data.get("Date"),
+                                    experiment_date = form_data.get("Experiment Date"),
                                     )
     convertor.convert_eeg()
 if __name__ == '__main__':

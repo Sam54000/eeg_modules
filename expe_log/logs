@@ -1,0 +1,40 @@
+{
+    "Date": "2023-09-28T16:30:04-04:00",
+    "Experiment Date": "",
+    "Experimenter": "",
+    "Source EEG Filename": "/Users/samuel/Desktop/sub-HC002_ses-01_task-ant_eeg.mff",
+    "Source Electrodes Location Filename": "/Users/samuel/Desktop/sub-HC002_ses-01_task-ant_geoscan.xml",
+    "Root": "/Users/samuel/Desktop/",
+    "Subject": "HC002",
+    "Session": "01",
+    "Task": "ant",
+    "Datatype": "eeg",
+    "Notes": "",
+    "Montage": "GSN-HydroCel-129"
+}{
+    "Date": "2023-09-28T16:45:14-04:00",
+    "Experiment Date": "",
+    "Experimenter": "",
+    "Source EEG Filename": "/Users/samuel/Desktop/sub-HC002_ses-01_task-ant_eeg.mff",
+    "Source Electrodes Location Filename": "/Users/samuel/Desktop/sub-HC002_ses-01_task-ant_geoscan.xml",
+    "Root": "/Users/samuel/Desktop",
+    "Subject": "HC002",
+    "Session": "01",
+    "Task": "ant",
+    "Datatype": "eeg",
+    "Notes": "",
+    "Montage": "GSN-HydroCel-129"
+}{
+    "Date": "2023-09-28T16:50:33-04:00",
+    "Experiment Date": "",
+    "Experimenter": "",
+    "Source EEG Filename": "/Users/samuel/Desktop/sub-HC002_ses-01_task-ant_eeg.mff",
+    "Source Electrodes Location Filename": "/Users/samuel/Desktop/sub-HC002_ses-01_task-ant_geoscan.xml",
+    "Root": "/Users/samuel/Desktop/",
+    "Subject": "HC002",
+    "Session": "01",
+    "Task": "ant",
+    "Datatype": "eeg",
+    "Notes": "",
+    "Montage": "GSN-HydroCel-129"
+}
