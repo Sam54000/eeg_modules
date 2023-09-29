@@ -12,7 +12,7 @@ release = '0.0.23'
 version = '0.0.23'
 
 # -- General configuration
-sys.path.insert(0,os.path.abspath('User/samuel/codes/Sam54000_eeg_modules/Sam54000_eeg_modules/'))
+sys.path.insert(0,os.path.abspath('User/samuel/codes/Sam54000_eeg_modules'))
 sys.path.append(os.path.abspath('sphinxext'))
 
 extensions = [
