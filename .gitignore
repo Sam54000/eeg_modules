@@ -154,10 +154,14 @@ dmypy.json
 cython_debug/
 
 # DS_Store
+<<<<<<< HEAD
 #*.DS_Store
+=======
+.DS_Store
+>>>>>>> parent of 5da702a (update gitignore)
 
 # VS codes workspace
 *.code-workspace
 
 # End of https://www.toptal.com/developers/gitignore/api/python,jupyternotebooks
-expe_log/*
+expe_log/logs
