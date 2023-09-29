@@ -43,7 +43,3 @@ Module contents
    :show-inheritance:
 
 .. toctree::
-   :maxdepth: 1
-
-   index
-   Usage

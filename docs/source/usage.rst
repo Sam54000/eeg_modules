@@ -146,7 +146,3 @@ Third step
 .. _`HIPPA compliant`:https://www.hhs.gov/hipaa/for-professionals/security/laws-regulations/index.html
 
 .. toctree::
-   :maxdepth: 1
-   
-   index
-   APIs
