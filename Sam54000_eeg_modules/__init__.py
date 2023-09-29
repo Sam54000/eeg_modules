@@ -27,4 +27,4 @@ __all__ = ('Convertor',
            'apply_ssd',
            'eprime_data',
            )
-__version__ = "0.0.24"
+__version__ = "0.0.25"
