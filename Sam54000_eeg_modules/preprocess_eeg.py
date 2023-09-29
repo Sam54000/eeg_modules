@@ -805,7 +805,7 @@ def apply_custom_baseline(data, time_window=None, method="mean"):
 
     return baseline_applied
 
-def run_ica(raw,n_components = 0.999, vizualisation=False, apply=False, **kwargs):
+def run_ica(raw,n_components = 0.999, vizualisation=False, apply=False, interpolate = False, **kwargs):
     """run_ica.
     Special wrapper for Independant Component Analysis (ICA) from mne-python.
 
@@ -816,10 +816,14 @@ def run_ica(raw,n_components = 0.999, vizualisation=False, apply=False, **kwargs
             component that explain `n_components` the standard deviation. For more
             details see: https://mne.tools/stable/generated/mne.preprocessing.ICA.html#mne.preprocessing.ICA
             Defaults to 0.999.
+        vizualisation (bool, optional): If True, plot the sources. Defaults to False.
+        apply (bool, optional): If True, apply the ICA to the raw data. Defaults to False.
+        interpolate (bool, optional): If True, interpolate bad channels before running ICA. Defaults to False.
 
     """
 
-    raw.interpolate_bads(reset_bads=True)
+    if interpolate:
+        raw.interpolate_bads(reset_bads=True)
 
     ica = ICA(
         n_components=n_components,
