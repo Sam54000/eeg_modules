@@ -27,4 +27,6 @@ __all__ = ('Convertor',
            'apply_ssd',
            'eprime_data',
            )
-__version__ = "0.0.25"
+f = open('version.txt', 'r')
+version = f.readline()
+__version__ = version
