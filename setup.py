@@ -1,5 +1,6 @@
 import setuptools
 
+version = f.readline()
 setuptools.setup(
     name="Sam54000_eeg_modules",
     author="Samuel Louviot",
