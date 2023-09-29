@@ -155,6 +155,7 @@ cython_debug/
 
 # DS_Store
 *.DS_Store
+.DS_Store
 
 # VS codes workspace
 *.code-workspace
