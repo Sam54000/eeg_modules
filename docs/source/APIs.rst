@@ -45,6 +45,5 @@ Module contents
 .. toctree::
    :maxdepth: 1
 
-   Introduction
+   index
    Usage
-   APIs

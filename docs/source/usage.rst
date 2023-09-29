@@ -148,6 +148,5 @@ Third step
 .. toctree::
    :maxdepth: 1
    
-   Introduction
-   Usage
+   index
    APIs

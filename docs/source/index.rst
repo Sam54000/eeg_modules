@@ -26,6 +26,5 @@ to adapt them to your own needs.
 .. toctree::
    :maxdepth: 1
 
-   Introduction
    Usage
    APIs
