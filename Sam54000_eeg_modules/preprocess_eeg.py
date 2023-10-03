@@ -42,6 +42,7 @@ from copy import copy
 import mne                                    # pip install mne or conda install mne
 import numpy as np                            # pip install numpy or conda install numpy
 import pyprep                                 # pip install pyprep or conda install -c conda-forge pyprep
+import mne_bids
 
 from mne.io import read_raw_fif
 from mne.preprocessing import ICA, read_ica
@@ -844,7 +845,7 @@ def run_ica(raw,n_components = 0.999, vizualisation=False, apply=False, interpol
 
     return ica
 
-def read_eeg_and_ica(raw_filename, ica_filename=None):
+def read_eeg_and_ica(raw_filename, ica_filename=None, interpolate=False):
     """read_data_and_ica.
     Read the raw data and apply the ICA if an ICA object is provided.
     
@@ -860,13 +861,14 @@ def read_eeg_and_ica(raw_filename, ica_filename=None):
     
     """
     raw = read_raw_fif(raw_filename, preload=True)
-    raw.interpolate_bads(reset_bads=True)
+    if interpolate:
+        raw.interpolate_bads(reset_bads=True)
 
     if ica_filename is not None:
         ica = read_ica(ica_filename)
         ica.apply(raw)
 
-    return raw
+    return raw, ica
 
 class epochs_stats:
     """epochs_stats.
@@ -1135,3 +1137,7 @@ def create_ssd_object(instance, band="theta", saving_filename=None, save=False):
             pickle.dump(ssd, outp, pickle.HIGHEST_PROTOCOL)
 
     return ssd
+
+def plot_interpolated(root = None, subject = 'HC001'):
+   BIDS_path = mne_bids.BIDSPath(root = root,
+                                 subject = subject,) 
