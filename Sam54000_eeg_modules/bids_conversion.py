@@ -563,6 +563,11 @@ At any moment, you can press Ctrl+C to exit the program.\n'''
                                  datatype=form_data.get("Datatype")
     )
     convertor = Convertor(BIDSpath, form_data["Source Electrodes Location Filename"], form_data["Source EEG Filename"])
+    try: 
+        len(convertor.raw) != 0
+    except: 
+        raise ValueError("The eeg file doesn't exist or is corrupted")
+    
     if form_data["Source Electrodes Location Filename"] is not None:
         convertor.electrodes_description()
     convertor.channel_description()

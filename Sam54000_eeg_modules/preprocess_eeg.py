@@ -35,6 +35,7 @@ import re
 import os
 import pickle
 from copy import copy
+from pathlib import Path
 
 # ==============================================================================
 #                       IMPORTS CUSTOM MODULES AND PACKAGES
@@ -43,6 +44,8 @@ import mne                                    # pip install mne or conda install
 import numpy as np                            # pip install numpy or conda install numpy
 import pyprep                                 # pip install pyprep or conda install -c conda-forge pyprep
 import mne_bids
+import pandas as pd
+from matplotlib import pyplot as plt
 
 from mne.io import read_raw_fif
 from mne.preprocessing import ICA, read_ica
@@ -1138,6 +1141,40 @@ def create_ssd_object(instance, band="theta", saving_filename=None, save=False):
 
     return ssd
 
-def plot_interpolated(root = None, subject = 'HC001'):
-   BIDS_path = mne_bids.BIDSPath(root = root,
-                                 subject = subject,) 
+def plot_bad(root = None, subject = 'HC001', session = '01', task = 'ant', group = 'HC', montage_name = 'GSN-HydroCel-129'):
+    """plot_bad
+    Plot bad electrodes after pyprep and visual inspection
+
+    Args:
+        root (Posixpath, optional): Path to look. Defaults to None.
+        subject (str, optional): Subject ID. Defaults to 'HC001'.
+        session (str, optional): Session ID. Defaults to '01'.
+        task (str, optional): Task name. Defaults to 'ant'.
+        group (str, optional): Group ID. Defaults to 'HC'.
+        montage_name (str, optional): Montage. Defaults to 'GSN-HydroCel-129'.
+    
+    Returns:
+        fig (:obj:`matplotlib.figure.Figure`): The figure object.
+        ax (:obj:`matplotlib.axes.Axes`): The axes object.
+    """
+    BIDS_path = mne_bids.BIDSPath(root = root,
+                                 subject = subject,
+                                 suffix='eeg',
+                                 datatype='eeg',
+                                 description='reviewed',
+                                 session=session,
+                                 extension='.fif',
+                                 task=task
+                                 )
+    raw = mne_bids.read_raw_bids(BIDS_path)
+    csv_file = Path(BIDS_path.root,'metadata_reviewed',f'metadata_review_{group}.csv')
+    df = pd.read_csv(csv_file)
+    d = df[df['subject'] == subject]
+    nb_bad = df[f'auto_bad_elec_nb_{task}'][0] + df[f'bad_after_review_nb_{task}'][0]
+    percentage = round(nb_bad * 100 / raw.info['nchan'],2)
+    fig, ax = plt.subplots()
+    string = [f'Number: {nb_bad}',
+          f'Percentage: {percentage} %']
+    plt.text(-0.1, 0.12,'\n'.join(string), fontsize=11)
+    raw.plot_sensors(axes = ax)
+    return fig, ax
