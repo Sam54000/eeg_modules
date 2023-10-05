@@ -243,7 +243,7 @@ def preprocess_eeg_ant(raw, montage_name="GSN-HydroCel-129"):
             
         # Arange StimChan to get always the right value for the right event
         ordered_stim_chan_dict = {
-            evt:event_desc[evt] for evt in stim_chan_names
+            evt:event_desc.get(evt) for evt in stim_chan_names
         }
         # Find events based on stim channels
         # The old EGI system have only 0 or 1 on each channel so it can't be sorted
@@ -291,11 +291,11 @@ def preprocess_eeg_ant(raw, montage_name="GSN-HydroCel-129"):
                     [
                         f"channel name: {key}",
                         4 * " ",
-                        f"id: {chan_stim_dict[key]['id_value']}",
+                        f"id: {chan_stim_dict.get(key)['id_value']}",
                         4 * " ",
-                        f"event:{chan_stim_dict[key]['event']}",
+                        f"event:{chan_stim_dict.get(key)['event']}",
                         4 * " ",
-                        f"raw_val: {int(np.unique(raw._data[chan_stim_dict[key]['ch_index']])[1])}",
+                        f"raw_val: {int(np.unique(raw._data[chan_stim_dict.get(key)['ch_index']])[1])}",
                     ]
                 )
             )
@@ -317,7 +317,7 @@ def preprocess_eeg_ant(raw, montage_name="GSN-HydroCel-129"):
         )
 
         event_dict = {
-            chan_stim_dict[key]["id_value"]: chan_stim_dict[key]["event"]
+            chan_stim_dict.get(key)["id_value"]: chan_stim_dict.get(key)["event"]
 
             for key in chan_stim_dict.keys()
         }
