@@ -258,7 +258,7 @@ def preprocess_eeg_ant(raw, montage_name="GSN-HydroCel-129"):
         # Dictionnary with stim channels paramters
         chan_stim_dict = {
             stim_chan_names[i]: {
-                "event": event_desc[stim_chan_names[i]],
+                "event": event_desc.get(stim_chan_names[i]),
                 "ch_index": idx[i],
                 "id_value": raw.event_id.get(stim_chan_names[i]),
             }
@@ -273,8 +273,8 @@ def preprocess_eeg_ant(raw, montage_name="GSN-HydroCel-129"):
 
         for val, key in enumerate(chan_stim_dict.keys()):
             raw.event_id[key] = val + 1
-            ch_index = chan_stim_dict[key]["ch_index"]
-            chan_stim_dict[key]["id_value"] = val + 1
+            ch_index = chan_stim_dict.get(key)["ch_index"]
+            chan_stim_dict.get(key)["id_value"] = val + 1
             raw._data[ch_index, np.nonzero(raw._data[ch_index, :])] = val + 1
 
         # Sanity check
