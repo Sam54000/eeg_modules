@@ -29,4 +29,4 @@ __all__ = ('Convertor',
            )
 #f = open('version.txt', 'r')
 #version = f.readline()
-__version__ = '0.0.31'
+__version__ = '0.0.42'
