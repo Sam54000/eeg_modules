@@ -762,12 +762,14 @@ def run_prep(raw, montage_name="GSN-HydroCel-129"):
 
     return prep
 
-def apply_custom_baseline(data, time_window=None, method="mean"):
+def apply_custom_baseline(data, base_data = None, time_window=None, method="mean"):
     """apply_custom_baseline.
     Apply a custom baseline to the data for a time-frequency analysis.
 
     Args:
         data (:obj:`mne.io.Raw` | :obj:`mne.Epochs`): An instance of mne.io.Raw or mne.Epochs.
+        base_data (:obj:`mne.Epochs` | :obj:`mne.Evoked`): An instance of mne.Epochs or mne.Evoked that will be used as a baseline.
+            Useful when data has to be referenced to a separated baseline condition such as resting state (which is separated from data)
         time_window (tuple, optional): The time window in seconds to use for the baseline. Defaults to None.
         method (str, optional): Method for applying the baseline. Can be:
             - "mean": Data are substracted by the mean calculated within the time window.
@@ -782,10 +784,15 @@ def apply_custom_baseline(data, time_window=None, method="mean"):
     """
     
     d = data.get_data()
+
+    if not base_data:
+        base_data = data.copy()
+
     if time_window is None:
-        bld = data.copy().get_data()
+        bld = base_data.copy().get_data()
     else:
-        bld = data.copy().crop(*time_window).get_data()
+        bld = base_data.copy().crop(*time_window).get_data()
+
     m = np.mean(bld, axis=-1, keepdims=True)
 
     if method == "mean":
