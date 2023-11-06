@@ -45,8 +45,9 @@ import numpy as np                            # pip install numpy or conda insta
 import pyprep                                 # pip install pyprep or conda install -c conda-forge pyprep
 import mne_bids
 import pandas as pd
-from matplotlib import pyplot as plt
 
+from matplotlib import pyplot as plt
+from pytz import timezone
 from mne.io import read_raw_fif
 from mne.preprocessing import ICA, read_ica
 from .cli import prompt_message
@@ -214,16 +215,16 @@ def preprocess_eeg_ant(raw, montage_name="GSN-HydroCel-129"):
             'War+':'cue',
             f'{stim_var}01':'no_cue/congruent/up',
             f'{stim_var}02':'no_cue/incongruent/up',
-            f'{stim_var}04':'no_cue/congruent/down',
-            f'{stim_var}05':'no_cue/incongruent/down',
+            f'{stim_var}04':'no_cue/congruent/dwn',
+            f'{stim_var}05':'no_cue/incongruent/dwn',
             f'{stim_var}07':'center/congruent/up',
             f'{stim_var}08':'center/incongruent/up',
-            f'{stim_var}10':'center/congruent/down',
-            f'{stim_var}11':'center/incongruent/down',
+            f'{stim_var}10':'center/congruent/dwn',
+            f'{stim_var}11':'center/incongruent/dwn',
             f'{stim_var}19':'spatial/congruent/up',
             f'{stim_var}20':'spatial/incongruent/up',
-            f'{stim_var}22':'spatial/congruent/down',
-            f'{stim_var}23':'spatial/incongruent/down',
+            f'{stim_var}22':'spatial/congruent/dwn',
+            f'{stim_var}23':'spatial/incongruent/dwn',
             'ESTR':'session_start',
             'EEND':'session_end',
             'resp':'response',
@@ -258,7 +259,7 @@ def preprocess_eeg_ant(raw, montage_name="GSN-HydroCel-129"):
         # Dictionnary with stim channels paramters
         chan_stim_dict = {
             stim_chan_names[i]: {
-                "event": event_desc[stim_chan_names[i]],
+                "event": event_desc.get(stim_chan_names[i]),
                 "ch_index": idx[i],
                 "id_value": raw.event_id.get(stim_chan_names[i]),
             }
@@ -273,8 +274,8 @@ def preprocess_eeg_ant(raw, montage_name="GSN-HydroCel-129"):
 
         for val, key in enumerate(chan_stim_dict.keys()):
             raw.event_id[key] = val + 1
-            ch_index = chan_stim_dict[key]["ch_index"]
-            chan_stim_dict[key]["id_value"] = val + 1
+            ch_index = chan_stim_dict.get(key)["ch_index"]
+            chan_stim_dict.get(key)["id_value"] = val + 1
             raw._data[ch_index, np.nonzero(raw._data[ch_index, :])] = val + 1
 
         # Sanity check
@@ -291,11 +292,11 @@ def preprocess_eeg_ant(raw, montage_name="GSN-HydroCel-129"):
                     [
                         f"channel name: {key}",
                         4 * " ",
-                        f"id: {chan_stim_dict.get(key)['id_value']}",
+                        f"id: {chan_stim_dict.get(key).get('id_value')}",
                         4 * " ",
-                        f"event:{chan_stim_dict.get(key)['event']}",
+                        f"event:{chan_stim_dict.get(key).get('event')}",
                         4 * " ",
-                        f"raw_val: {int(np.unique(raw._data[chan_stim_dict.get(key)['ch_index']])[1])}",
+                        f"raw_val: {np.unique(np.flatnonzero(raw._data[chan_stim_dict.get(key).get('ch_index')]))}",
                     ]
                 )
             )
@@ -598,9 +599,6 @@ def extract_ant_blocks(raw):
         stim_var = '00'
 
     desired_elec = [
-        'bgin',
-        'FxS+',
-        'War+',
         f'{stim_var}01',
         f'{stim_var}02',
         f'{stim_var}04',
@@ -614,19 +612,12 @@ def extract_ant_blocks(raw):
         f'{stim_var}22',
         f'{stim_var}23',
         'resp',
-        'RT',
-        'TSTR',
-        'TEND']
-    
-    ch_index = [stim_chan_names.index(ch) for ch in stim_chan_names if ch in desired_elec]
+        'RT'
+        ]
+
+    ch_index = [stim_chan_names.index(ch) for ch in stim_chan_names if ch.strip() in desired_elec]
     new_stim_chan_data = stim_chan_data[ch_index,:]
-    
-    prompt_message(
-        "filtering",
-        line_separator="",
-        separator_position="below",
-        message_alignment="left",
-    )
+
     raw.filter(1, None, verbose="CRITICAL")
 
     # Merge all stimuli together to have the ant_block shape discretized (all stim)
@@ -638,14 +629,14 @@ def extract_ant_blocks(raw):
     bin_block = np.zeros(len(raw))
 
     # Get when a target trigger is on
-    idx = np.squeeze(np.nonzero(ant_block_discrete))
-
-    # How many seconds before and after the trigger to consider as a same event
-    threshold = 3 * int(raw.info["sfreq"])
+    index = np.where(ant_block_discrete == 1)[0]
+    diff_samples = np.diff(index)
+    sorted_diff_samples = np.sort(diff_samples, axis=0)
+    threshold = sorted_diff_samples[-3]    # How many seconds before and after the trigger to consider as a same event
 
     # Create blocks
-    for i in idx:
-        bin_block[i-threshold:i+threshold] = 1
+    for i in index:
+        bin_block[i:i+threshold] = 1
 
     # Detect edges
     edges = np.diff(bin_block)
@@ -669,13 +660,6 @@ def extract_ant_blocks(raw):
     duration = [raw.times[duration_idx] for duration_idx in idx_block_duration]
 
     # Count number of targets and responses
-
-    if len(onsets) > 3:
-        onsets.pop(0)
-        duration.pop(0)
-        rising = np.delete(rising, 0)
-        falling = np.delete(falling, 0)
-
     nb_targets, nb_responses = [], []
 
     for r,f in zip(rising, falling):
@@ -943,42 +927,6 @@ class epochs_stats:
             individual epochs object. For the process it is more interesting to get the Epochs object because I can get
             all the informations."""
 
-            # Onset time of the fixation cross compared to the target (t=0)
-
-            if metadata is None:
-                fixation_cross_onset = data.tmin
-                CUE_ONSET_TIME = data.tmax
-
-            elif metadata is not None:
-                fixation_cross_onset = -metadata["PreTargetDuration"].iloc[i] / 1000
-                CUE_ONSET_TIME = -0.5
-
-            fixation_duration[i] = abs(CUE_ONSET_TIME - fixation_cross_onset)
-
-            # Extract data from fixation onset to cue onset for each epoch
-            chunk = data[i].copy().crop(tmin=fixation_cross_onset, tmax=CUE_ONSET_TIME)
-
-            chunk_array = chunk.get_data()
-
-            # Get the signal only within the desired time window
-            chunk_list.append(chunk_array)
-
-            # Calculate the descriptive statistics
-            mean[i, :, :] = chunk_array.mean(axis=2, keepdims=True)
-            std[i, :, :] = chunk_array.std(axis=2, keepdims=True)
-            median[i, :, :] = np.median(chunk_array, axis=2, keepdims=True)
-            idx_max[i] = np.unravel_index(chunk_array.argmax(), chunk_array.shape)[2]
-            idx_min[i] = np.unravel_index(chunk_array.argmin(), chunk_array.shape)[2]
-            maximum[i, :, :] = np.transpose(chunk_array[:, :, int(idx_max[i])])
-            minimum[i, :, :] = np.transpose(chunk_array[:, :, int(idx_min[i])])
-
-            # Calculate the slope across each channel
-
-            for channel in range(np.shape(chunk)[0]):
-                slope[i, channel] = np.polyfit(
-                    chunk.times, np.squeeze(chunk_array[:, channel, :]), deg=1
-                )[0]
-
             # Get the event names
             event_names.append(list(data[i].event_id.keys())[0])
 
@@ -1149,6 +1097,7 @@ def create_ssd_object(instance, band="theta", saving_filename=None, save=False):
     return ssd
 
 def plot_bad(root = None, subject = 'HC001', session = '01', task = 'ant', group = 'HC', montage_name = 'GSN-HydroCel-129'):
+    
     """plot_bad
     Plot bad electrodes after pyprep and visual inspection
 
@@ -1185,3 +1134,149 @@ def plot_bad(root = None, subject = 'HC001', session = '01', task = 'ant', group
     plt.text(-0.1, 0.12,'\n'.join(string), fontsize=11)
     raw.plot_sensors(axes = ax)
     return fig, ax
+
+def create_epochs(raw, tmin = -0.8, tmax=0.8, beh_data = None, locking = "stim", **kwargs):
+    """create_epochs.
+    Create epochs from raw data based on annotations during an ANT task.
+
+    Args:
+        raw (:obj: mne.io.Raw): The raw data processed with the prep pipeline.
+        tmin (float): time in seconds to start the epoch.
+        tmax (float): time in seconds to end the epoch.
+        beh_data (:obj: pandas.DataFrame): The behavioral data in a pandas dataframe.
+        locking (str, optional): Wether to lock the vizualisation on the stim "stim" or response
+            "resp". Defaults to "stim".
+
+    Returns:
+        None
+    """
+
+    conditions = {"stim": 
+        [
+        "no_cue/congruent/up",
+        "no_cue/incongruent/up",
+        "no_cue/congruent/dwn",
+        "no_cue/incongruent/dwn",
+        "center/congruent/up",
+        "center/incongruent/up",
+        "center/congruent/dwn",
+        "center/incongruent/dwn",
+        "spatial/congruent/up",
+        "spatial/incongruent/up",
+        "spatial/congruent/dwn",
+        "spatial/incongruent/dwn",
+    ],
+        "resp": ["response"]
+    }
+    
+    if locking not in ["stim", "resp"]:
+        raise ValueError("locking must be either 'stim' or 'resp'")
+    if locking == "resp":
+        beh_data = None
+    
+    # Create events from annotations
+    events_from_annot = mne.events_from_annotations(raw)
+    
+    # Get the event id for each condition
+    evt_dict = {key: events_from_annot[1][key] for key in conditions.get(locking)}
+    
+    # Get the event indices
+    unfiltered_evt = events_from_annot[0]
+    mask = np.isin(unfiltered_evt[:, 2], list(evt_dict.values()))
+    evt = unfiltered_evt[mask]
+    
+    # Create the epochs
+    epochs = mne.Epochs(
+        raw,
+        events=evt,
+        event_id=evt_dict,
+        tmin=tmin,
+        tmax=tmax,
+        preload=True,
+        **kwargs,
+    )
+
+    # Harmonize IDS for cross subject comparison
+    # Add 13 to all event IDs in the epoch
+    epochs.events[:, 2] += max(list(epochs.event_id.values()))
+    
+    # Create a dictionary that maps original event IDs to new IDs
+    event_id_map = {}
+    for key, value in epochs.event_id.items():
+        event_id_map[key] = value + max(list(epochs.event_id.values()))
+        
+    # Update the event_id dictionary with the new IDs
+    epochs.event_id = event_id_map
+    
+    # Replace the original event IDs in the epoch with the new IDs
+    for new_id, condition in enumerate(conditions.get(locking)):
+        epochs.events[:, 2][
+            np.where(epochs.events[:, 2] == epochs.event_id[condition])
+        ] = (new_id + 1)
+        epochs.event_id[condition] = new_id + 1
+        
+    # Get dataframe from annotations
+    annotations = epochs.annotations  # get the annotations object
+    annotations_df = annotations.to_data_frame()  # export annotation into dataframe
+    annotations_df = annotations_df[annotations_df["description"].isin(conditions.get(locking))]
+    annotations_df = annotations_df.reset_index()
+    DeltaTime = list()
+    timestamps = annotations_df["onset"].to_list()  # extract the timestamps
+    for timestamp in timestamps:
+        DT = timestamp.to_pydatetime()
+        DT = timezone("UTC").localize(DT)
+        DT = (DT - raw.info["meas_date"]).total_seconds()
+        DeltaTime.append(DT)
+    annotations_df["DeltaTime"] = DeltaTime
+    
+    # get dropped epochs index
+    droped_epoch = [index for index, string in enumerate(epochs.drop_log) if string]
+    
+    # in case we want to add the metadata from the behavioral file
+    if beh_data is not None:
+        df = beh_data.dataframe
+        df["description"] = (
+            df["CueType"] + "/" + df["FlankerType"] + "/" + df["TargetType"]
+        )
+        df = df.reset_index()
+        
+        # HARMONIZE THESE GODDAMN EVENT BECAUSE SOMETIME THERE ARE SOME MISSING IN THE RAW!!!!!
+        if len(df) > len(annotations_df):
+            a = list(df["description"])
+            b = list(annotations_df["description"])
+            dataframe_a = left = df
+            dataframe_b = right = annotations_df
+
+        elif len(df) < len(annotations_df):
+            a = list(annotations_df["description"])
+            b = list(df["description"])
+            dataframe_a = right = annotations_df
+            dataframe_b = left = df
+
+        elif len(df) == len(annotations_df):
+            dataframe_a = left = df
+            dataframe_b = right = annotations_df
+
+        if len(dataframe_a) != len(dataframe_b):
+            idx = list()
+            while len(a) > len(b):
+                for i in range(len(a)):
+                    if a[i] != b[i]:
+                        idx.append(i)
+                        a.pop(i)
+                        break
+                    
+            dataframe_a.drop(index=idx, inplace=True)
+            dataframe_a.reset_index(inplace=True)
+            
+        left.reset_index(inplace=True)
+        right.reset_index(inplace=True)
+        metadata = left.join(right, lsuffix="_beh")
+        metadata = metadata.drop(index=droped_epoch, axis=0)
+        metadata = metadata.drop(columns=["index_beh", "level_0"])
+        metadata.reset_index(inplace=True)
+    else:
+        metadata = annotations_df.reset_index()
+        metadata = metadata.drop(index=droped_epoch, axis=0)
+    epochs.metadata = metadata
+    return epochs
