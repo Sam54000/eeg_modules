@@ -86,12 +86,12 @@ class Convertor:
     Args:
         BIDSpath (:obj: `mne_bids.BIDSPath`): Path object generated from mne_bids.BIDSPath constructor. It has to point to the saving EEG folder.
         eeg_filename (str, path-like): Path to the raw EEG file.
-        electrodes_loc_xml (str, path-like): Path to the xml file containing the electrodes coordinate if the file exists.
+        electrodes_loc_filename (str, path-like): Path to the xml file containing the electrodes coordinate if the file exists.
         
     Attributes:
         BIDSpath (:obj: `mne_bids.BIDSPath`): Path object generated from mne_bids.BIDSPath constructor. It has to point to the saving EEG folder.
         eeg_filename (str, path-like): Path to the raw EEG file.
-        electrodes_loc_xml (str, path-like): Path to the xml file containing the electrodes coordinate if the file exists.
+        electrodes_loc_filename (str, path-like): Path to the xml file containing the electrodes coordinate if the file exists.
         BIDSentities_from_eeg (dict): Dictionary containing the BIDS entities extracted from the eeg_filename.
         raw (:obj: `mne.io.Raw`): Raw object containing the EEG data.
     """
@@ -120,8 +120,8 @@ class Convertor:
         Returns:
             self(:obj: Convertor): instance of the Convertor class
         """
-        if self.electrodes_loc_xml is None:
-            print('No electrodes_loc_xml file specified')
+        if self.electrodes_loc_filename is None:
+            print('No electrodes_loc_filename file specified')
             return
             
         
@@ -136,7 +136,7 @@ class Convertor:
             )
             if os.splitext(self.electrodes_loc_filename)[1] != '.xml':
                 # Read and parse elements in the xml file
-                tree = ET.parse(self.electrodes_loc_xml)
+                tree = ET.parse(self.electrodes_loc_filename )
                 root = tree.getroot()
 
                 # Enter the coordinates in the dataframe for each electrodes found
@@ -573,14 +573,14 @@ At any moment, you can press Ctrl+C to exit the program.\n'''
     input('\nPRESS A KEY TO CONTINUE')
     os.system('cls' if os.name == 'nt' else 'clear')
     eeg_filename = input('Enter the path to the raw EEG file (or drag and drop the file here): ')
-    electrodes_loc_xml = input('Enter the path to the xml file containing the electrodes coordinates (or drag and drop the file here): ')
+    electrodes_loc_filename = input('Enter the path to the xml file containing the electrodes coordinates (or drag and drop the file here): ')
     BIDSentities_from_eeg = mne_bids.get_entities_from_fname(eeg_filename)
     date = datetime.now().astimezone().isoformat(timespec = 'seconds')
     form_data = {"Date": date,
                  "Experiment Date": "",
                  "Experimenter": "",
                  "Source EEG Filename": eeg_filename.strip("'"),
-                 "Source Electrodes Location Filename": electrodes_loc_xml.strip("'"),
+                 "Source Electrodes Location Filename":electrodes_loc_filename.strip("'"),
                  "Root":"",
                  "Subject": BIDSentities_from_eeg.get('subject'),
                  "Session": BIDSentities_from_eeg.get('session'),
