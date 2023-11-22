@@ -5,11 +5,12 @@ import glob
 import inspect
 
 if 'SPHINX' not in os.environ: os.environ[ 'SPHINX' ] = '1'
-try: import Sam54000_eeg_modules
+try: 
+    import Sam54000_eeg_modules
 except ImportError:
-	sys.path.insert( 0, os.path.realpath( '/Users/samuel/anaconda3/envs/mne/bin' ) )
+	sys.path.insert( 0, os.path.realpath( '../Sam54000_eeg_modules' ) )
 	import Sam54000_eeg_modules
-	sys.modules['eeg_modules'] = sys.modules['Sam54000_eeg_modules']
+	sys.modules['Sam54000_eeg_modules']
 
 
 # -- Project information
