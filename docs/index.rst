@@ -24,3 +24,17 @@ to adapt them to your own needs.
 .. [#] Fan, J., McCandliss, B. D., Fossella, J., Flombaum, J. I., & Posner, M. I. (2005). The activation of attentional networks. Neuroimage, 26(2), 471-479. https://www.sciencedirect.com/science/article/pii/S1053811905000416
 
 .. toctree::
+   :caption: Table of Contents
+   :maxdepth: 2
+   
+   auto/Usage
+   auto/Installation
+   source/modules
+
+
+Indices and tables
+==================
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`

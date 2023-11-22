@@ -1,0 +1,15 @@
+Installation
+============
+The package relies on MNE-python_ which is quite heavy and can take a very long time to install.
+I would suggest to install MNE-python_ first and then install this package.
+To `install MNE-python`_ you have several choices that are very well documented on their website:
+https://mne.tools/stable/install/index.html
+
+To install the package:
+
+.. code-block:: console
+
+   $ python3 -m pip install Sam54000_eeg_modules
+
+.. _MNE-python: https://mne.tools/stable/index.html
+.. _install MNE-python: https://mne.tools/stable/install/index.html
