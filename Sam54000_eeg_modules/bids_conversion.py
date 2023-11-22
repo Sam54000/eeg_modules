@@ -134,7 +134,7 @@ class Convertor:
                     z = [],
                     type = []
             )
-            if os.path.splitext(self.electrodes_loc_filename)[1] != '.xml':
+            if os.path.splitext(self.electrodes_loc_filename)[1] == '.xml':
                 # Read and parse elements in the xml file
                 tree = ET.parse(self.electrodes_loc_filename )
                 root = tree.getroot()
