@@ -8,14 +8,14 @@ if 'SPHINX' not in os.environ: os.environ[ 'SPHINX' ] = '1'
 try: 
     import Sam54000_eeg_modules
 except ImportError:
-	sys.path.insert( 0, os.path.realpath( '../Sam54000_eeg_modules' ) )
+	sys.path.insert( 0, os.path.realpath( '../python' ) )
 	import Sam54000_eeg_modules
 	sys.modules['Sam54000_eeg_modules']
 
 
 # -- Project information
 
-project = 'Sam54000-eeg_modules'
+project = 'Sam54000_eeg_modules'
 copyright = '2023, Samuel Louviot'
 author = 'Samuel Louviot'
 
