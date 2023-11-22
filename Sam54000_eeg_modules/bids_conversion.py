@@ -134,7 +134,7 @@ class Convertor:
                     z = [],
                     type = []
             )
-            if os.splitext(self.electrodes_loc_filename)[1] != '.xml':
+            if os.path.splitext(self.electrodes_loc_filename)[1] != '.xml':
                 # Read and parse elements in the xml file
                 tree = ET.parse(self.electrodes_loc_filename )
                 root = tree.getroot()
@@ -163,7 +163,7 @@ class Convertor:
                         elif "nasion" in root[0][1][elec][0].text.lower():
                             nas = [float(i.text) for i in root[0][1][elec][3:6]]
             
-            if os.splitexet(self.electrodes_loc_filename)[1] == '.txt':   
+            elif os.path.splitext(self.electrodes_loc_filename)[1] == '.txt':   
                 f = open(self.electrodes_loc_filename, "r")
                 lines = f.readlines()
                 electrodes = lines[5:]
@@ -189,6 +189,9 @@ class Convertor:
                         electrode_dict['y'].append(elements[2])
                         electrode_dict['z'].append(elements[3])
                         electrode_dict['type'].append(elec_type)
+                
+                else:
+                    print('The file extension is not supported. Please use a .xml or .txt file')
                 
             electrodes= pd.DataFrame(electrode_dict)
             self.BIDSpath.update(suffix = 'electrodes', extension = '.tsv')
