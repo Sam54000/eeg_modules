@@ -95,8 +95,8 @@ class Convertor:
         BIDSentities_from_eeg (dict): Dictionary containing the BIDS entities extracted from the eeg_filename.
         raw (:obj: `mne.io.Raw`): Raw object containing the EEG data.
     """
-    def __init__(self,BIDSpath,electrodes_loc_xml=None,eeg_filename=None):
-        self.electrodes_loc_xml=electrodes_loc_xml
+    def __init__(self,BIDSpath,electrodes_loc_filename=None,eeg_filename=None):
+        self.electrodes_loc_filename=electrodes_loc_filename
         self.BIDSpath = BIDSpath
         fileparts = os.path.splitext(eeg_filename)
         self.BIDSentities_from_eeg= mne_bids.get_entities_from_fname(fileparts[0])
@@ -123,34 +123,74 @@ class Convertor:
         if self.electrodes_loc_xml is None:
             print('No electrodes_loc_xml file specified')
             return
+            
+        
         else:
-            # Read and parse elements in the xml file
-            tree = ET.parse(self.electrodes_loc_xml)
-            root = tree.getroot()
-            
             # Create a dataframe containing the electrodes coordinates
-            electrodes= pd.DataFrame(columns=['name', 'x', 'y', 'z', 'type'])
-            
-            # Enter the coordinates in the dataframe for each electrodes found
-            for elec in range(len(root[0][1])):
-                if root[0][1][elec][2].text != '2':
-                    if root[0][1][elec][2].text == '0':
-                        electrodes.loc[elec, 'name'] = f'E{root[0][1][elec][1].text}'
-                        electrodes.loc[elec, 'type'] = elec_type
-                    elif root[0][1][elec][2].text == '1':
-                        electrodes.loc[elec, 'name'] = ref_name
-                        electrodes.loc[elec, 'type'] = elec_type
-                    electrodes.loc[elec, 'x'] = root[0][1][elec][3].text
-                    electrodes.loc[elec, 'y'] = root[0][1][elec][4].text
-                    electrodes.loc[elec, 'z'] = root[0][1][elec][5].text
-                elif root[0][1][elec][2].text == '2':
-                    if "right" in root[0][1][elec][0].text.lower():
-                        rpa = [float(i.text) for i in root[0][1][elec][3:6]]
-                    elif "left" in root[0][1][elec][0].text.lower():
-                        lpa = [float(i.text) for i in root[0][1][elec][3:6]]
-                    elif "nasion" in root[0][1][elec][0].text.lower():
-                        nas = [float(i.text) for i in root[0][1][elec][3:6]]
+            electrode_dict = dict(
+                    name = [],
+                    x = [],
+                    y = [],
+                    z = [],
+                    type = []
+            )
+            if os.splitext(self.electrodes_loc_filename)[1] != '.xml':
+                # Read and parse elements in the xml file
+                tree = ET.parse(self.electrodes_loc_xml)
+                root = tree.getroot()
 
+                # Enter the coordinates in the dataframe for each electrodes found
+                for elec in range(len(root[0][1])):
+                    
+                    # EEG coordinates
+                    if root[0][1][elec][2].text != '2':
+                        if root[0][1][elec][2].text == '0':
+                            electrode_dict["name"].append(f'E{root[0][1][elec][1].text}')
+                            electrode_dict["type"].append(elec_type)
+                        elif root[0][1][elec][2].text == '1':
+                            electrode_dict["name"].append(ref_name)
+                            electrode_dict["type"].append(elec_type)
+                            electrode_dict["x"].append(root[0][1][elec][3].text)
+                            electrode_dict["y"].append(root[0][1][elec][4].text)
+                            electrode_dict["z"].append(root[0][1][elec][5].text)
+
+                    # Fiducials coordinates
+                    elif root[0][1][elec][2].text == '2':
+                        if "right" in root[0][1][elec][0].text.lower():
+                            rpa = [float(i.text) for i in root[0][1][elec][3:6]]
+                        elif "left" in root[0][1][elec][0].text.lower():
+                            lpa = [float(i.text) for i in root[0][1][elec][3:6]]
+                        elif "nasion" in root[0][1][elec][0].text.lower():
+                            nas = [float(i.text) for i in root[0][1][elec][3:6]]
+            
+            if os.splitexet(self.electrodes_loc_filename)[1] == '.txt':   
+                f = open(self.electrodes_loc_filename, "r")
+                lines = f.readlines()
+                electrodes = lines[5:]
+
+                for electrode in electrodes:
+                    elements = electrode.split(' ')
+                    
+                    # Fiducials coordinates
+                    if elements[0] == 'FidNz':
+                        nas = elements[1:]
+                        continue
+                    elif elements[0] == 'FidT9':
+                        lpa = elements[1:]
+                        continue
+                    elif elements[0] == 'FidT10':
+                        rpa = elements[1:]
+                        continue
+
+                    # Electrodes coordinates
+                    else:
+                        electrode_dict['name'].append(elements[0])
+                        electrode_dict['x'].append(elements[1])
+                        electrode_dict['y'].append(elements[2])
+                        electrode_dict['z'].append(elements[3])
+                        electrode_dict['type'].append(elec_type)
+                
+            electrodes= pd.DataFrame(electrode_dict)
             self.BIDSpath.update(suffix = 'electrodes', extension = '.tsv')
             electrodes.to_csv(self.BIDSpath.fpath)
             print_string = f'electrodes description saved in:'
@@ -163,9 +203,9 @@ class Convertor:
             'EEGCoordinateUnits': 'cm',
             'EEGCoordinateSystemDescription': 'RAS orientation: Origin halfway between LPA and RPA, positive x-axis towards RPA, positive y-axis orthogonal to x-axis through Nasion,  z-axis orthogonal to xy-plane, pointing in superior direction',
             'FiducialDescription': 'Electrodes and fiducials were digitized with a GeoScan system from EGI',
-            'FiducialCoordinates': {'NAS': rpa, 
+            'FiducialCoordinates': {'NAS': nas, 
                                     'LPA': lpa,
-                                    'RPA': nas},
+                                    'RPA': rpa},
             'FiducialsCoordinateSystem': 'CapTrak',
             'FiducialsCoordinateUnits': 'cm',
             'FiducialCoordinateSystemDescription': 'The three fiducials are NAS for nasion the most anterior point on the skull, LPA for left preauricular the most lateral point on the left ear, and RPA for right preauricular the most lateral point on the right ear. Each fiducial coordinates are expressed with a list of 3 values representing the coordinates in x,y and z, respectively. The coordinate system is CapTrak, which is a right-handed Cartesian coordinate system with the origin halfway between LPA and RPA, positive x-axis towards RPA, positive y-axis orthogonal to x-axis through Nasion,  z-axis orthogonal to xy-plane, pointing in superior direction'} 
@@ -308,16 +348,16 @@ class Convertor:
             mapping = [
                 'no_cue/congruent/up',
                 'no_cue/incongruent/up',
-                'no_cue/congruent/down',
-                'no_cue/incongruent/down',
+                'no_cue/congruent/dwn',
+                'no_cue/incongruent/dwn',
                 'center/congruent/up',
                 'center/incongruent/up',
-                'center/congruent/down',
-                'center/incongruent/down',
+                'center/congruent/dwn',
+                'center/incongruent/dwn',
                 'spatial/congruent/up',
                 'spatial/incongruent/up',
-                'spatial/congruent/down',
-                'spatial/incongruent/down',
+                'spatial/congruent/dwn',
+                'spatial/incongruent/dwn',
             ]
 
         onset = list()
